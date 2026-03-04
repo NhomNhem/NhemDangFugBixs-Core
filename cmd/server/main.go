@@ -113,6 +113,7 @@ func main() {
 	// Register handlers
 	authHandler := api.NewAuthHandler()
 	levelHandler := api.NewLevelHandler()
+	talentHandler := api.NewTalentHandler()
 	
 	// Auth routes (public)
 	auth := apiV1.Group("/auth")
@@ -121,6 +122,10 @@ func main() {
 	// Protected routes (require JWT)
 	levels := apiV1.Group("/levels", middleware.AuthMiddleware())
 	levels.Post("/complete", levelHandler.CompleteLevel)
+	
+	talents := apiV1.Group("/talents", middleware.AuthMiddleware())
+	talents.Get("/", talentHandler.GetTalents)
+	talents.Post("/upgrade", talentHandler.UpgradeTalent)
 
 	// Get port from env or default to 8080
 	port := getEnv("PORT", "8080")
