@@ -14,9 +14,13 @@ var Pool *pgxpool.Pool
 
 // InitDB initializes the PostgreSQL connection pool
 func InitDB() error {
-	dbURL := os.Getenv("SUPABASE_DATABASE_URL")
+	// Try DATABASE_URL first (production), fallback to SUPABASE_DATABASE_URL (local)
+	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		return fmt.Errorf("SUPABASE_DATABASE_URL is not set")
+		dbURL = os.Getenv("SUPABASE_DATABASE_URL")
+	}
+	if dbURL == "" {
+		return fmt.Errorf("DATABASE_URL or SUPABASE_DATABASE_URL is not set")
 	}
 
 	config, err := pgxpool.ParseConfig(dbURL)
