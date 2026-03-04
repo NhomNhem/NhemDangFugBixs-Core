@@ -9,12 +9,31 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
+
+	"github.com/NhomNhem/GameFeel-Backend/internal/api"
+	"github.com/NhomNhem/GameFeel-Backend/internal/database"
 )
 
 func main() {
 	// Load environment variables
 	if err := godotenv.Load("configs/.env"); err != nil {
 		log.Println("No .env file found, using system environment variables")
+	}
+
+	// Initialize database connection (optional for development)
+	if err := database.InitDB(); err != nil {
+		log.Printf("⚠️  Database connection failed: %v", err)
+		log.Println("⚠️  Continuing without database (API endpoints will return mock data)")
+		log.Println("💡 To fix: Check network/firewall, or deploy to server with IPv6 support")
+	}
+	defer database.Close()
+
+	// Run database migrations (only if connected)
+	if database.Pool != nil {
+		if err := database.RunMigrations(); err != nil {
+			log.Printf("⚠️  Migration failed: %v", err)
+			log.Println("Continuing without migrations (tables may already exist)")
+		}
 	}
 
 	// Create Fiber app
@@ -48,18 +67,33 @@ func main() {
 
 	// Health check endpoint
 	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
+		health := fiber.Map{
 			"status":  "ok",
 			"message": "GameFeel Backend is running",
 			"version": "1.0.0",
-		})
+		}
+
+		// Check database connection (optional)
+		if database.Pool != nil {
+			ctx := c.Context()
+			if err := database.Pool.Ping(ctx); err != nil {
+				health["database"] = "disconnected"
+				health["database_error"] = err.Error()
+			} else {
+				health["database"] = "connected"
+			}
+		} else {
+			health["database"] = "not configured"
+		}
+
+		return c.JSON(health)
 	})
 
 	// API v1 routes
-	api := app.Group("/api/v1")
+	apiV1 := app.Group("/api/v1")
 
 	// Root endpoint with API info
-	api.Get("/", func(c *fiber.Ctx) error {
+	apiV1.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"success": true,
 			"message": "GameFeel API v1",
@@ -75,12 +109,12 @@ func main() {
 		})
 	})
 
-	// TODO: Register route handlers
-	// auth := api.Group("/auth")
-	// levels := api.Group("/levels")
-	// talents := api.Group("/talents")
-	// payments := api.Group("/payments")
-	// analytics := api.Group("/analytics")
+	// Register handlers
+	authHandler := api.NewAuthHandler()
+	
+	// Auth routes
+	auth := apiV1.Group("/auth")
+	auth.Post("/login", authHandler.Login)
 
 	// Get port from env or default to 8080
 	port := getEnv("PORT", "8080")
