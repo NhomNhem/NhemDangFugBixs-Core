@@ -1,0 +1,11 @@
+# Dockerignore for smaller image
+.git
+.github
+.env
+configs/.env
+docs/
+*.md
+README.md
+.gitignore
+Logs/
+*.log
