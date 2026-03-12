@@ -24,44 +24,59 @@ func NewHollowWildsService() *HollowWildsService {
 	return &HollowWildsService{}
 }
 
-// ValidatePlayFabTicket validates a PlayFab session ticket
-func (s *HollowWildsService) ValidatePlayFabTicket(sessionTicket string, playfabID string) error {
+// ValidatePlayFabTicket validates a PlayFab session ticket and returns the authenticated PlayFab ID
+func (s *HollowWildsService) ValidatePlayFabTicket(sessionTicket string) (string, error) {
 	if sessionTicket == "" {
-		return fmt.Errorf("session ticket is required")
-	}
-
-	if playfabID == "" {
-		return fmt.Errorf("playfab ID is required")
+		return "", fmt.Errorf("session ticket is required")
 	}
 
 	titleID := os.Getenv("PLAYFAB_TITLE_ID")
 	if titleID == "" || titleID == "DEV" {
-		return nil // Skip validation in development mode
+		return "MOCK_PLAYFAB_ID", nil // Skip validation in development mode
 	}
 
 	url := fmt.Sprintf("https://%s.playfabapi.com/Client/GetAccountInfo", titleID)
 
+	// PlayFab GetAccountInfo with empty body returns the info for the ticket owner
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		return "", fmt.Errorf("failed to create request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Authorization", sessionTicket)
-	req.Body = nil
 
 	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to validate ticket: %w", err)
+		return "", fmt.Errorf("failed to validate ticket: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("invalid PlayFab session ticket")
+		return "", fmt.Errorf("invalid PlayFab session ticket")
 	}
 
-	return nil
+	var result struct {
+		Data struct {
+			AccountInfo struct {
+				PlayFabId   string `json:"PlayFabId"`
+				TitleInfo struct {
+					DisplayName string `json:"DisplayName"`
+				} `json:"TitleInfo"`
+			} `json:"AccountInfo"`
+		} `json:"data"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", fmt.Errorf("failed to decode PlayFab response: %w", err)
+	}
+
+	if result.Data.AccountInfo.PlayFabId == "" {
+		return "", fmt.Errorf("no PlayFabId returned from API")
+	}
+
+	return result.Data.AccountInfo.PlayFabId, nil
 }
 
 // GetOrCreatePlayer gets existing player or creates new one

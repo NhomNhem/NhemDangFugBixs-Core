@@ -47,20 +47,9 @@ func (h *HollowWildsHandler) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	// In a real app, we'd extract PlayFabId from the ticket or request
-	// For now, we assume the client provides it in a custom header or we'd call PlayFab
-	playfabID := c.Get("X-PlayFab-ID")
-	if playfabID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInvalidRequest,
-				Message: "X-PlayFab-ID header is required",
-			},
-		})
-	}
-
-	if err := h.hollowWildsService.ValidatePlayFabTicket(req.PlayfabSessionTicket, playfabID); err != nil {
+	// Validate ticket and get the verified PlayFab ID
+	playfabID, err := h.hollowWildsService.ValidatePlayFabTicket(req.PlayfabSessionTicket)
+	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
 			Success: false,
 			Error: &models.APIError{
@@ -68,6 +57,13 @@ func (h *HollowWildsHandler) Login(c *fiber.Ctx) error {
 				Message: "Invalid PlayFab session ticket",
 			},
 		})
+	}
+
+	// In development mode, allow override via header if specified
+	if playfabID == "MOCK_PLAYFAB_ID" {
+		if headerID := c.Get("X-PlayFab-ID"); headerID != "" {
+			playfabID = headerID
+		}
 	}
 
 	player, err := h.hollowWildsService.GetOrCreatePlayer(c.Context(), playfabID, nil)
@@ -175,9 +171,7 @@ func (h *HollowWildsHandler) Logout(c *fiber.Ctx) error {
 	// Blacklist current JWT
 	authHeader := c.Get("Authorization")
 	if strings.HasPrefix(authHeader, "Bearer ") {
-		token := strings.TrimPrefix(authHeader, "Bearer ")
 		// In a real app, we'd parse the token to get JTI and blacklist it
-		log.Printf("Logging out token: %s", token)
 	}
 
 	// Revoke refresh token if provided
