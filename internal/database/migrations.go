@@ -92,6 +92,23 @@ func createHollowWildsTables(ctx context.Context) error {
 	CREATE INDEX IF NOT EXISTS idx_leaderboard_global ON leaderboard_entries(type, value DESC);
 	CREATE INDEX IF NOT EXISTS idx_leaderboard_character ON leaderboard_entries(type, character, value DESC);
 	CREATE INDEX IF NOT EXISTS idx_leaderboard_player ON leaderboard_entries(player_id);
+
+	-- Analytics
+	CREATE TABLE IF NOT EXISTS analytics_events (
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		user_id UUID,
+		event_type TEXT NOT NULL,
+		event_properties JSONB DEFAULT '{}',
+		session_id TEXT,
+		platform TEXT,
+		app_version TEXT,
+		created_at TIMESTAMPTZ DEFAULT NOW()
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_analytics_events_type ON analytics_events(event_type);
+	CREATE INDEX IF NOT EXISTS idx_analytics_events_created ON analytics_events(created_at DESC);
+	CREATE INDEX IF NOT EXISTS idx_analytics_events_user ON analytics_events(user_id);
+	CREATE INDEX IF NOT EXISTS idx_analytics_events_session ON analytics_events(session_id);
 	`
 
 	_, err := Pool.Exec(ctx, query)

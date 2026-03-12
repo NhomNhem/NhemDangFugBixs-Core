@@ -15,13 +15,13 @@ The backend has been upgraded with Hollow Wilds Phase 1 features and verified in
 
 ## Decisions
 
-### 1. Hosting Platform
-**Decision:** Continue using Fly.io.
-**Rationale:** The project already contains a `fly.toml` and Dockerfile. Fly.io provides a straightforward path for containerized Go applications with easy scaling and secret management.
+### 1. Hosting Platform & CI/CD
+**Decision:** Continue using Fly.io with GitHub Actions for automated deployment.
+**Rationale:** The project already contains a `fly.toml`, Dockerfile, and a `.github/workflows/deploy.yml`. GitHub Actions provides a robust and repeatable way to deploy on every push to the `main` branch, ensuring production always matches the codebase.
 
 ### 2. Secret Management
-**Decision:** Use `fly secrets set` for all sensitive environment variables.
-**Rationale:** Avoids committing secrets to version control and ensures they are injected securely into the production runtime.
+**Decision:** Use `fly secrets set` for runtime environment variables and GitHub Action Secrets for CI/CD credentials (`FLY_API_TOKEN`).
+**Rationale:** Balances security and automation. Fly.io manages application secrets, while GitHub handles the deployment authorization.
 
 ### 3. Database Migration Strategy
 **Decision:** Execute the `004_hollow_wilds_phase1.sql` migration manually via the Supabase SQL Editor or the migration tool pointing to the production URL.

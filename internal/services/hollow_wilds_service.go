@@ -544,7 +544,7 @@ func (s *HollowWildsService) RecordAnalyticsEvents(ctx context.Context, playerID
 		}
 
 		_, err := database.Pool.Exec(ctx, `
-			INSERT INTO analytics_events (player_id, session_id, event_name, payload, created_at)
+			INSERT INTO analytics_events (user_id, session_id, event_type, event_properties, created_at)
 			VALUES ($1, $2, $3, $4, NOW())
 		`, playerIDStr, event.SessionID, event.EventName, payloadJSON)
 

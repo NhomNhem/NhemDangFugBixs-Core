@@ -58,31 +58,30 @@ CREATE INDEX IF NOT EXISTS idx_player_save_backups_created_at ON player_save_bac
 CREATE INDEX IF NOT EXISTS idx_player_save_backups_player_created ON player_save_backups(player_id, created_at DESC);
 
 -- ============================================================================
--- 4. Extend analytics_events table (if it exists, create if not)
+-- 4. Analytics events table (Shared between legacy and Hollow Wilds)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS analytics_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    player_id UUID REFERENCES players(id) ON DELETE SET NULL,
-    session_id VARCHAR(64),
-    event_name VARCHAR(64) NOT NULL,
-    payload JSONB DEFAULT '{}',
+    user_id UUID,                      -- References users(id) OR players(id)
+    event_type TEXT NOT NULL,          -- Renamed from event_name to match context
+    event_properties JSONB DEFAULT '{}', -- Renamed from payload to match context
+    session_id TEXT,
+    platform TEXT,
+    app_version TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index on event_name for analytics queries
-CREATE INDEX IF NOT EXISTS idx_analytics_events_event_name ON analytics_events(event_name);
+-- Index on event_type for analytics queries
+CREATE INDEX IF NOT EXISTS idx_analytics_events_type ON analytics_events(event_type);
 
 -- Index on created_at for time-based queries
-CREATE INDEX IF NOT EXISTS idx_analytics_events_created_at ON analytics_events(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_created ON analytics_events(created_at DESC);
 
--- Composite index for event + time queries
-CREATE INDEX IF NOT EXISTS idx_analytics_events_event_created ON analytics_events(event_name, created_at DESC);
-
--- Index on player_id for player-specific analytics
-CREATE INDEX IF NOT EXISTS idx_analytics_events_player_id ON analytics_events(player_id);
+-- Index on user_id for player-specific analytics
+CREATE INDEX IF NOT EXISTS idx_analytics_events_user ON analytics_events(user_id);
 
 -- Index on session_id for session tracking
-CREATE INDEX IF NOT EXISTS idx_analytics_events_session_id ON analytics_events(session_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_session ON analytics_events(session_id);
 
 -- ============================================================================
 -- 5. Create leaderboard_entries table
@@ -126,7 +125,7 @@ COMMENT ON TABLE player_save_backups IS 'Historical save backups for recovery';
 COMMENT ON COLUMN player_save_backups.save_version IS 'Save version at time of backup';
 COMMENT ON COLUMN player_save_backups.save_data IS 'Snapshot of game state at backup time';
 
-COMMENT ON TABLE analytics_events IS 'Analytics event log for Hollow Wilds';
-COMMENT ON COLUMN analytics_events.event_name IS 'Event type (player_death, item_crafted, boss_killed, etc.)';
-COMMENT ON COLUMN analytics_events.payload IS 'Event-specific data as JSONB';
+COMMENT ON TABLE analytics_events IS 'Analytics event log for Hollow Wilds and legacy systems';
+COMMENT ON COLUMN analytics_events.event_type IS 'Event type (player_death, item_crafted, boss_killed, etc.)';
+COMMENT ON COLUMN analytics_events.event_properties IS 'Event-specific data as JSONB';
 COMMENT ON COLUMN analytics_events.session_id IS 'Session identifier for grouping events';
