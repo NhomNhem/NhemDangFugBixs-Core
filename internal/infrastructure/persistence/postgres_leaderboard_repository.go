@@ -189,3 +189,228 @@ func (r *postgresLeaderboardRepository) GetPlayerStats(ctx context.Context, play
 
 	return entries, nil
 }
+
+// Legacy Implementation
+
+func (r *postgresLeaderboardRepository) GetLegacyGlobal(ctx context.Context, levelID string, limit, offset int) ([]models.LeaderboardEntry, int, error) {
+	if r.db == nil {
+		return nil, 0, nil
+	}
+
+	query := `
+		SELECT 
+			u.id,
+			COALESCE(u.display_name, 'Anonymous'),
+			lr.best_time_seconds,
+			lr.stars_earned,
+			RANK() OVER (ORDER BY lr.best_time_seconds ASC) as rank
+		FROM level_rankings lr
+		JOIN users u ON lr.user_id = u.id
+		WHERE lr.level_id = $1
+		ORDER BY lr.best_time_seconds ASC
+		LIMIT $2 OFFSET $3
+	`
+
+	rows, err := r.db.Query(ctx, query, levelID, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var entries []models.LeaderboardEntry
+	for rows.Next() {
+		var entry models.LeaderboardEntry
+		var userID uuid.UUID
+		err := rows.Scan(
+			&userID,
+			&entry.DisplayName,
+			&entry.BestTime,
+			&entry.Stars,
+			&entry.Rank,
+		)
+		if err != nil {
+			return nil, 0, err
+		}
+		entry.PlayerID = userID.String()
+		entries = append(entries, entry)
+	}
+
+	var total int
+	err = r.db.QueryRow(ctx, "SELECT COUNT(*) FROM level_rankings WHERE level_id = $1", levelID).Scan(&total)
+	if err != nil {
+		total = 0
+	}
+
+	return entries, total, nil
+}
+
+func (r *postgresLeaderboardRepository) GetLegacyPlayerRank(ctx context.Context, userID uuid.UUID, levelID string) (int, float64, int, error) {
+	if r.db == nil {
+		return 0, 0, 0, nil
+	}
+
+	query := `
+		WITH ranked AS (
+			SELECT 
+				user_id,
+				best_time_seconds,
+				stars_earned,
+				RANK() OVER (ORDER BY best_time_seconds ASC) as rank
+			FROM level_rankings
+			WHERE level_id = $1
+		)
+		SELECT rank, best_time_seconds, stars_earned
+		FROM ranked
+		WHERE user_id = $2
+	`
+
+	var rank int
+	var bestTime float64
+	var stars int
+	err := r.db.QueryRow(ctx, query, levelID, userID).Scan(&rank, &bestTime, &stars)
+	if err == pgx.ErrNoRows {
+		return 0, 0, 0, nil
+	}
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	return rank, bestTime, stars, nil
+}
+
+func (r *postgresLeaderboardRepository) UpsertLegacyEntry(ctx context.Context, userID uuid.UUID, levelID string, timeSeconds float64, stars int) error {
+	if r.db == nil {
+		return nil
+	}
+
+	query := `
+		INSERT INTO level_rankings (user_id, level_id, best_time_seconds, stars_earned, completed_at, updated_at)
+		VALUES ($1, $2, $3, $4, NOW(), NOW())
+		ON CONFLICT (user_id, level_id) DO UPDATE
+		SET best_time_seconds = LEAST(level_rankings.best_time_seconds, EXCLUDED.best_time_seconds),
+		    stars_earned = GREATEST(level_rankings.stars_earned, EXCLUDED.stars_earned),
+		    updated_at = NOW()
+	`
+
+	_, err := r.db.Exec(ctx, query, userID, levelID, timeSeconds, stars)
+	return err
+}
+
+func (r *postgresLeaderboardRepository) GetLegacyFriends(ctx context.Context, friendIDs []string, levelID string) ([]models.LeaderboardEntry, error) {
+	if r.db == nil {
+		return nil, nil
+	}
+
+	if len(friendIDs) == 0 {
+		return []models.LeaderboardEntry{}, nil
+	}
+
+	query := `
+		SELECT 
+			u.id,
+			COALESCE(u.display_name, 'Anonymous'),
+			lr.best_time_seconds,
+			lr.stars_earned,
+			RANK() OVER (ORDER BY lr.best_time_seconds ASC) as rank
+		FROM level_rankings lr
+		JOIN users u ON lr.user_id = u.id
+		WHERE lr.level_id = $1
+		  AND u.playfab_id = ANY($2)
+		ORDER BY lr.best_time_seconds ASC
+	`
+
+	rows, err := r.db.Query(ctx, query, levelID, friendIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var entries []models.LeaderboardEntry
+	for rows.Next() {
+		var entry models.LeaderboardEntry
+		var userID uuid.UUID
+		err := rows.Scan(
+			&userID,
+			&entry.DisplayName,
+			&entry.BestTime,
+			&entry.Stars,
+			&entry.Rank,
+		)
+		if err != nil {
+			return nil, err
+		}
+		entry.PlayerID = userID.String()
+		entries = append(entries, entry)
+	}
+
+	return entries, nil
+}
+
+func (r *postgresLeaderboardRepository) ResetLegacyLeaderboard(ctx context.Context, levelID string) error {
+	if r.db == nil {
+		return nil
+	}
+	_, err := r.db.Exec(ctx, "DELETE FROM level_rankings WHERE level_id = $1", levelID)
+	return err
+}
+
+func (r *postgresLeaderboardRepository) GetLegacyStats(ctx context.Context) (*models.LeaderboardStatsResponse, error) {
+	if r.db == nil {
+		return &models.LeaderboardStatsResponse{
+			TotalEntries:  100,
+			UniquePlayers: 50,
+			LevelsTracked: 5,
+			LastUpdated:   time.Now(),
+		}, nil
+	}
+
+	stats := &models.LeaderboardStatsResponse{
+		LastUpdated: time.Now(),
+	}
+
+	// Basic stats
+	err := r.db.QueryRow(ctx, `
+		SELECT 
+			COUNT(*), 
+			COUNT(DISTINCT user_id), 
+			COUNT(DISTINCT level_id),
+			AVG(best_time_seconds)
+		FROM level_rankings
+	`).Scan(&stats.TotalEntries, &stats.UniquePlayers, &stats.LevelsTracked, &stats.AverageTime)
+	if err != nil {
+		return nil, err
+	}
+
+	// Per-level stats
+	rows, err := r.db.Query(ctx, `
+		SELECT 
+			level_id, 
+			COUNT(*), 
+			COUNT(DISTINCT user_id), 
+			AVG(best_time_seconds),
+			MIN(best_time_seconds)
+		FROM level_rankings
+		GROUP BY level_id
+		ORDER BY COUNT(*) DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var info models.LevelStatsInfo
+		err := rows.Scan(&info.LevelID, &info.TotalEntries, &info.UniquePlayers, &info.AverageTime, &info.BestTime)
+		if err != nil {
+			continue
+		}
+		stats.LevelStats = append(stats.LevelStats, info)
+	}
+
+	if len(stats.LevelStats) > 0 {
+		stats.TopLevelID = stats.LevelStats[0].LevelID
+		stats.TopLevelCount = stats.LevelStats[0].TotalEntries
+	}
+
+	return stats, nil
+}

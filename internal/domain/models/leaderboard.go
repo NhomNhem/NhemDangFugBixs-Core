@@ -34,13 +34,16 @@ type LevelLeaderboardResponse struct {
 
 // PlayerStatsResponse for player position & stats
 type PlayerStatsResponse struct {
-	PlayerID        string  `json:"playerId"`
-	DisplayName     *string `json:"displayName,omitempty"`
-	GlobalRank      int     `json:"globalRank"`
-	TotalStars      int     `json:"totalStars"`
-	MaxMapUnlocked  int     `json:"maxMapUnlocked"`
-	LevelsCompleted int     `json:"levelsCompleted"`
-	AverageStars    float64 `json:"averageStars"`
+	PlayerID           string             `json:"playerId"`
+	DisplayName        *string            `json:"displayName,omitempty"`
+	GlobalRank         int                `json:"globalRank"`
+	TotalStars         int                `json:"totalStars"`
+	MaxMapUnlocked     int                `json:"maxMapUnlocked"`
+	LevelsCompleted    int                `json:"levelsCompleted"`
+	AverageStars       float64            `json:"averageStars"`
+	BestTime           float64            `json:"bestTime,omitempty"`
+	Stars              int                `json:"stars,omitempty"`
+	SurroundingPlayers []LeaderboardEntry `json:"surroundingPlayers,omitempty"`
 }
 
 // LevelStatsResponse for level analytics

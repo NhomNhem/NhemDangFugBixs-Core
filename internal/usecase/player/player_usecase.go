@@ -14,18 +14,21 @@ import (
 )
 
 type playerUsecase struct {
-	saveRepo  repository.SaveRepository
-	cacheRepo repository.CacheRepository
+	playerRepo repository.PlayerRepository
+	saveRepo   repository.SaveRepository
+	cacheRepo  repository.CacheRepository
 }
 
 // NewPlayerUsecase creates a new player usecase
 func NewPlayerUsecase(
+	playerRepo repository.PlayerRepository,
 	saveRepo repository.SaveRepository,
 	cacheRepo repository.CacheRepository,
 ) usecase.PlayerUsecase {
 	return &playerUsecase{
-		saveRepo:  saveRepo,
-		cacheRepo: cacheRepo,
+		playerRepo: playerRepo,
+		saveRepo:   saveRepo,
+		cacheRepo:  cacheRepo,
 	}
 }
 
@@ -94,12 +97,15 @@ func (u *playerUsecase) SaveGame(ctx context.Context, playerID uuid.UUID, saveDa
 		return nil, err
 	}
 
-	// 5. Handle automatic backup (every 10 versions)
+	// 5. Update last seen
+	u.playerRepo.UpdateLastSeen(ctx, playerID)
+
+	// 6. Handle automatic backup (every 10 versions)
 	if newSave.SaveVersion%10 == 0 {
 		u.CreateBackup(ctx, playerID)
 	}
 
-	// 6. Invalidate cache
+	// 7. Invalidate cache
 	cacheKey := fmt.Sprintf("player:save:%s", playerID.String())
 	u.cacheRepo.Delete(ctx, cacheKey)
 
@@ -138,4 +144,44 @@ func (u *playerUsecase) CreateBackup(ctx context.Context, playerID uuid.UUID) (*
 
 func (u *playerUsecase) GetBackups(ctx context.Context, playerID uuid.UUID) ([]models.PlayerSaveBackup, error) {
 	return u.saveRepo.GetBackupsByPlayerID(ctx, playerID)
+}
+
+func (u *playerUsecase) RestoreFromBackup(ctx context.Context, playerID uuid.UUID, backupID uuid.UUID) (*models.PlayerSave, error) {
+	// 1. Get backup
+	backup, err := u.saveRepo.GetBackupByID(ctx, backupID)
+	if err != nil {
+		return nil, err
+	}
+	if backup == nil || backup.PlayerID != playerID {
+		return nil, fmt.Errorf("backup not found")
+	}
+
+	// 2. Get current save version
+	currentSave, err := u.saveRepo.GetByPlayerID(ctx, playerID)
+	if err != nil {
+		return nil, err
+	}
+
+	currentVersion := 0
+	if currentSave != nil {
+		currentVersion = currentSave.SaveVersion
+	}
+
+	// 3. Create new save from backup data (increment version from current)
+	newSave := &models.PlayerSave{
+		PlayerID:    playerID,
+		SaveVersion: currentVersion + 1,
+		SaveData:    backup.SaveData,
+	}
+
+	// 4. Persist
+	if err := u.saveRepo.Upsert(ctx, newSave); err != nil {
+		return nil, err
+	}
+
+	// 5. Invalidate cache
+	cacheKey := fmt.Sprintf("player:save:%s", playerID.String())
+	u.cacheRepo.Delete(ctx, cacheKey)
+
+	return newSave, nil
 }

@@ -12,7 +12,7 @@ Most endpoints require JWT authentication.
 Authorization: Bearer <jwt_token>
 ```
 
-Get JWT token via `/auth/login` endpoint.
+Get JWT token via `/auth/hw/login` endpoint for Hollow Wilds.
 
 ---
 
@@ -22,221 +22,179 @@ Get JWT token via `/auth/login` endpoint.
 
 **GET /health**
 
-Check if server is running.
-
-**Response:**
-```json
-{
-  "status": "ok",
-  "message": "Hollow Wilds Backend is running",
-  "version": "1.0.0"
-}
-```
+Check if server is running and database/Redis connections are healthy.
 
 ---
 
-### Authentication
+### Authentication (Hollow Wilds)
 
-**POST /api/v1/auth/login**
+**POST /api/v1/auth/hw/login**
 
-Exchange PlayFab session token for JWT.
-
-**Headers:**
-```
-X-PlayFab-SessionToken: <playfab_session_token>
-```
+Authenticate with PlayFab session ticket.
 
 **Request Body:**
 ```json
 {
-  "playfabId": "ABC123DEF456",
-  "displayName": "Player123"
+  "playfab_session_ticket": "SESSION_TICKET_FROM_PLAYFAB"
 }
 ```
 
 **Response:**
 ```json
 {
-  "success": true,
-  "data": {
-    "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-      "userId": "uuid-1234-5678",
-      "playfabId": "ABC123DEF456",
-      "displayName": "Player123",
-      "gold": 1000,
-      "diamonds": 50
-    },
-    "expiresIn": 86400
-  }
+  "token": "eyJhbGciOiJIUzI1Ni...",
+  "refresh_token": "uuid-v4-token",
+  "expires_in": 3600,
+  "player_id": "uuid-v4-player-id"
 }
 ```
 
+**POST /api/v1/auth/refresh**
+
+Get new access token using refresh token.
+
+**Request Body:**
+```json
+{
+  "refresh_token": "uuid-v4-token"
+}
+```
+
+**DELETE /api/v1/auth/logout**
+
+Invalidate tokens.
+
 ---
 
-### Level Completion
+### Player Save System
 
-**POST /api/v1/levels/complete**
+**GET /api/v1/player/save**
 
-Submit level completion for validation.
+Load complete game state.
 
 **Authentication:** Required
 
-**Request Body:**
-```json
-{
-  "levelId": "map1-5",
-  "mapId": "map1",
-  "timeSeconds": 58.3,
-  "finalHP": 75.0,
-  "maxHP": 100.0,
-  "dashCount": 12,
-  "counterCount": 8,
-  "vulnerableKills": 6
-}
-```
-
 **Response:**
 ```json
 {
-  "success": true,
-  "data": {
-    "validation": {
-      "isValid": true,
-      "starsEarned": 2
-    },
-    "rewards": {
-      "goldEarned": 100,
-      "newTotalGold": 1250
-    },
-    "progression": {
-      "levelUnlocked": "map1-6"
-    }
-  }
+  "player_id": "uuid",
+  "save_version": 15,
+  "updated_at": "2026-03-14T01:30:00Z",
+  "world": { "seed": 123, "play_time_seconds": 3600, "day_count": 5 },
+  "player": { "character": "RIMBA", "health": 85.0, ... },
+  "inventory": { "slots": [...], "equipped_weapon": "sword_01" },
+  "sebilah": { ... },
+  "base": { "placed_objects": [...] },
+  "discovered_pois": ["forest_shrine", "cave_entrance"],
+  "quest_flags": { "tutorial_complete": true }
 }
 ```
 
----
+**PUT /api/v1/player/save?version={expected_version}**
 
-### Talent Upgrade
-
-**POST /api/v1/talents/upgrade**
-
-Upgrade a talent.
+Save game state with optimistic locking.
 
 **Authentication:** Required
 
-**Request Body:**
-```json
-{
-  "talentType": "health",
-  "targetLevel": 6
-}
-```
+**Request Body:** (Same structure as Load response)
 
-**Response:**
+**Error (409 Conflict):**
 ```json
 {
-  "success": true,
-  "data": {
-    "newLevel": 6,
-    "goldSpent": 249,
-    "newGoldBalance": 901
-  }
+  "error": "version_conflict",
+  "server_version": 15,
+  "message": "Save is outdated, fetch latest first"
 }
 ```
 
 ---
 
-### Payments
+### Backups
 
-**POST /api/v1/payments/create-session**
+**POST /api/v1/player/save/backup**
 
-Create Stripe checkout session.
+Manually create a save backup.
+
+**GET /api/v1/player/save/backups**
+
+List all backups for the player.
+
+**POST /api/v1/player/save/restore**
+
+Restore save from a backup ID.
+
+**Request Body:**
+```json
+{
+  "backup_id": "uuid-of-backup"
+}
+```
+
+---
+
+### Leaderboards
+
+**GET /api/v1/leaderboard**
+
+Get Hollow Wilds ranked entries.
+
+**Query Parameters:**
+- `type`: Metric type (`longest_run_days`, `sebilah_soul_level`, `bosses_killed`). Default: `longest_run_days`.
+- `scope`: Scope (`global`, `per_character`). Default: `global`.
+- `character`: Character name (required if scope=per_character).
+- `limit`: Number of entries. Default: 100.
+- `offset`: Offset for pagination. Default: 0.
+
+**GET /api/v1/leaderboards/{levelId}**
+
+Get global rankings for a specific level.
+
+**Query Parameters:**
+- `page`: Page number. Default: 1.
+- `perPage`: Entries per page. Default: 10.
+
+**GET /api/v1/leaderboards/{levelId}/me**
+
+Get authenticated player's rank and surrounding players for a level.
 
 **Authentication:** Required
 
-**Request Body:**
-```json
-{
-  "sku": "diamonds_650",
-  "successUrl": "unitydl://payment-success",
-  "cancelUrl": "unitydl://payment-cancel"
-}
-```
+**GET /api/v1/leaderboards/{levelId}/friends**
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "sessionId": "cs_test_1234567890",
-    "checkoutUrl": "https://checkout.stripe.com/c/pay/...",
-    "expiresAt": "2026-03-04T12:28:00Z"
-  }
-}
-```
-
----
-
-### Analytics
-
-**POST /api/v1/analytics/events**
-
-Submit analytics events (batch).
+Get friends rankings for a specific level.
 
 **Authentication:** Required
 
+---
+
+### Admin Operations
+
+All admin endpoints require a JWT token with admin privileges.
+
+**GET /api/v1/admin/users/search?q={query}**
+
+Search for users.
+
+**GET /api/v1/admin/users/{userId}/profile**
+
+Get detailed user profile.
+
+**POST /api/v1/admin/users/{userId}/adjust-gold**
+
+Adjust user gold balance.
+
+**DELETE /api/v1/admin/leaderboards/{levelId}**
+
+Reset all entries for a specific level leaderboard.
+
 **Request Body:**
 ```json
 {
-  "events": [
-    {
-      "eventType": "level_start",
-      "timestamp": "2026-03-04T11:30:00Z",
-      "properties": {
-        "levelId": "map1-5",
-        "playerGold": 1150
-      }
-    }
-  ]
+  "reason": "Reason for reset (min 10 chars)"
 }
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "eventsProcessed": 1
-  }
-}
-```
+**GET /api/v1/admin/leaderboards/stats**
 
----
+Get analytics and statistics for all level leaderboards.
 
-## Error Responses
-
-All errors follow this format:
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Human-readable error message"
-  }
-}
-```
-
-**Common Error Codes:**
-- `INVALID_TOKEN` (401) - JWT invalid or expired
-- `VALIDATION_FAILED` (400) - Request validation failed
-- `INSUFFICIENT_FUNDS` (400) - Not enough gold/diamonds
-- `NOT_FOUND` (404) - Resource not found
-- `RATE_LIMIT_EXCEEDED` (429) - Too many requests
-- `INTERNAL_ERROR` (500) - Server error
-
----
-
-For detailed workflow diagrams, see [Phase 0 Documentation](../../../.copilot/session-state/*/files/backend-workflows.md)

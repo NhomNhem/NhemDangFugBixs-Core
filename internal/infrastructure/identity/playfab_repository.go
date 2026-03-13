@@ -1,6 +1,7 @@
 package identity
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -61,4 +62,54 @@ func (r *playfabRepository) ValidateTicket(ctx context.Context, sessionTicket st
 	}
 
 	return result.Data.AccountInfo.PlayFabId, nil
+}
+
+func (r *playfabRepository) GetFriends(ctx context.Context, playfabID string) ([]string, error) {
+	titleID := os.Getenv("PLAYFAB_TITLE_ID")
+	secretKey := os.Getenv("PLAYFAB_SECRET_KEY")
+
+	if titleID == "" || titleID == "DEV" || secretKey == "" {
+		// Mock friends for dev
+		return []string{"FRIEND_1", "FRIEND_2"}, nil
+	}
+
+	url := fmt.Sprintf("https://%s.playfabapi.com/Server/GetFriendsList", titleID)
+
+	body := map[string]string{
+		"PlayFabId": playfabID,
+	}
+	jsonBody, _ := json.Marshal(body)
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-SecretKey", secretKey)
+
+	resp, err := r.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result struct {
+		Data struct {
+			Friends []struct {
+				FriendPlayFabId string `json:"FriendPlayFabId"`
+			} `json:"Friends"`
+		} `json:"data"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	friends := make([]string, len(result.Data.Friends))
+	for i, f := range result.Data.Friends {
+		friends[i] = f.FriendPlayFabId
+	}
+
+	return friends, nil
 }

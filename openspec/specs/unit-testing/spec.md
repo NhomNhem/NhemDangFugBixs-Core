@@ -1,15 +1,29 @@
 ## ADDED Requirements
 
-### Requirement: Business Logic Isolation
-The system SHALL support testing business logic (usecases) in complete isolation from infrastructure details (DB, Redis, HTTP).
+### Requirement: Usecase Isolation
+The system SHALL mandate that all unit tests for the `internal/usecase` layer are performed in isolation from the database.
 
-#### Scenario: Unit testing a usecase
-- **WHEN** a developer runs a test for a usecase
-- **THEN** all external dependencies are satisfied by mocks, and the test verifies internal logic only
+#### Scenario: Testing a business rule
+- **WHEN** a unit test for a usecase is executed
+- **THEN** it uses a mock repository instead of a live database connection
 
-### Requirement: Mock Portability
-The system SHALL provide a standardized way to generate and maintain mocks for all Domain layer interfaces.
+### Requirement: Service Interface Contracts
+Every service or usecase SHALL have a corresponding interface defined in the domain layer to facilitate unit testing.
 
-#### Scenario: Regenerating mocks
-- **WHEN** an interface in the repository or usecase package is modified
-- **THEN** the developer can execute a single command to update all corresponding mocks
+#### Scenario: Mocking a usecase
+- **WHEN** a handler needs to be tested
+- **THEN** its constructor accepts a usecase interface, allowing the test to inject a mock
+
+### Requirement: Unit Test Framework
+The system SHALL utilize the standard Go `testing` package along with the `testify` library for assertions.
+
+#### Scenario: Running unit tests
+- **WHEN** the user executes `go test ./...`
+- **THEN** the system runs all unit tests and reports failures with detailed assertion messages
+
+### Requirement: Mock Generation
+The system SHALL support generating mocks for internal interfaces to isolate units during testing.
+
+#### Scenario: Generating repository mocks
+- **WHEN** the user runs the mock generation script
+- **THEN** mock implementations are generated for all interfaces in `internal/domain/repository/` (or equivalent domain interfaces)

@@ -13,4 +13,5 @@ type PlayerUsecase interface {
 	SaveGame(ctx context.Context, playerID uuid.UUID, saveData models.GameSaveData, expectedVersion int) (*models.PlayerSave, error)
 	CreateBackup(ctx context.Context, playerID uuid.UUID) (*models.PlayerSaveBackup, error)
 	GetBackups(ctx context.Context, playerID uuid.UUID) ([]models.PlayerSaveBackup, error)
+	RestoreFromBackup(ctx context.Context, playerID uuid.UUID, backupID uuid.UUID) (*models.PlayerSave, error)
 }

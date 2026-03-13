@@ -311,6 +311,70 @@ func (h *HollowWildsHandler) GetBackups(c *fiber.Ctx) error {
 	})
 }
 
+// RestoreFromBackup restores save data from a backup
+// @Summary Restore HW Backup
+// @Description Restore game save data from a selected backup
+// @Tags HollowWilds
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body models.RestoreRequest true "Restore request"
+// @Success 200 {object} models.SaveGameResponse "Restore confirmed"
+// @Failure 404 {object} models.APIResponse{error=models.APIError} "Backup not found"
+// @Router /player/save/restore [post]
+func (h *HollowWildsHandler) RestoreFromBackup(c *fiber.Ctx) error {
+	playerIDStr := c.Locals("userId").(string)
+	playerID, _ := uuid.Parse(playerIDStr)
+
+	var req models.RestoreRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Success: false,
+			Error: &models.APIError{
+				Code:    models.ErrCodeInvalidRequest,
+				Message: "Invalid request body",
+			},
+		})
+	}
+
+	backupID, err := uuid.Parse(req.BackupID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Success: false,
+			Error: &models.APIError{
+				Code:    models.ErrCodeInvalidRequest,
+				Message: "Invalid backup ID format",
+			},
+		})
+	}
+
+	save, err := h.playerUsecase.RestoreFromBackup(c.Context(), playerID, backupID)
+	if err != nil {
+		if err.Error() == "backup not found" {
+			return c.Status(fiber.StatusNotFound).JSON(models.APIResponse{
+				Success: false,
+				Error: &models.APIError{
+					Code:    "backup_not_found",
+					Message: "Backup not found or does not belong to this player",
+				},
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Success: false,
+			Error: &models.APIError{
+				Code:    models.ErrCodeInternalError,
+				Message: err.Error(),
+			},
+		})
+	}
+
+	return c.JSON(models.SaveGameResponse{
+		Success:     true,
+		SaveVersion: save.SaveVersion,
+		UpdatedAt:   save.UpdatedAt.Format("2006-01-02T15:04:05Z"),
+	})
+}
+
 // TrackEvents records analytics events
 // @Summary Track HW Events
 // @Description Submit a batch of analytics events

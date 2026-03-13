@@ -160,3 +160,103 @@ func (h *LeaderboardHandler) GetPlayerHollowWildsStats(c *fiber.Ctx) error {
 
 	return c.JSON(stats)
 }
+
+// GetGlobalLeaderboard handles the request for level-specific global rankings
+// @Summary Get Global Level Leaderboard
+// @Description Get ranked times for a specific level
+// @Tags Leaderboard
+// @Param levelId path string true "Level ID"
+// @Param page query int false "Page number" default(1)
+// @Param perPage query int false "Entries per page" default(10)
+// @Success 200 {object} models.GlobalLeaderboardResponse
+// @Router /leaderboards/{levelId} [get]
+func (h *LeaderboardHandler) GetGlobalLeaderboard(c *fiber.Ctx) error {
+	levelID := c.Params("levelId")
+	page := c.QueryInt("page", 1)
+	perPage := c.QueryInt("perPage", 10)
+
+	resp, err := h.leaderboardUsecase.GetGlobalLeaderboard(c.Context(), levelID, page, perPage)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Success: false,
+			Error: &models.APIError{
+				Code:    models.ErrCodeInternalError,
+				Message: "Failed to retrieve global leaderboard",
+			},
+		})
+	}
+
+	return c.JSON(resp)
+}
+
+// GetPlayerRank handles the request for player's rank on a specific level
+// @Summary Get Player Level Rank
+// @Description Get player's rank and surrounding players for a specific level
+// @Tags Leaderboard
+// @Security BearerAuth
+// @Param levelId path string true "Level ID"
+// @Success 200 {object} models.PlayerStatsResponse
+// @Router /leaderboards/{levelId}/me [get]
+func (h *LeaderboardHandler) GetPlayerRank(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("userId").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
+			Success: false,
+			Error: &models.APIError{
+				Code:    models.ErrCodeUnauthorized,
+				Message: "User not authenticated",
+			},
+		})
+	}
+	userID, _ := uuid.Parse(userIDStr)
+	levelID := c.Params("levelId")
+
+	resp, err := h.leaderboardUsecase.GetPlayerRank(c.Context(), userID, levelID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Success: false,
+			Error: &models.APIError{
+				Code:    models.ErrCodeInternalError,
+				Message: "Failed to retrieve player rank",
+			},
+		})
+	}
+
+	return c.JSON(resp)
+}
+
+// GetFriendsLeaderboard handles the request for friends rankings on a specific level
+// @Summary Get Friends Level Leaderboard
+// @Description Get friends rankings for a specific level
+// @Tags Leaderboard
+// @Security BearerAuth
+// @Param levelId path string true "Level ID"
+// @Success 200 {object} models.LevelLeaderboardResponse
+// @Router /leaderboards/{levelId}/friends [get]
+func (h *LeaderboardHandler) GetFriendsLeaderboard(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("userId").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
+			Success: false,
+			Error: &models.APIError{
+				Code:    models.ErrCodeUnauthorized,
+				Message: "User not authenticated",
+			},
+		})
+	}
+	userID, _ := uuid.Parse(userIDStr)
+	levelID := c.Params("levelId")
+
+	resp, err := h.leaderboardUsecase.GetFriendsLeaderboard(c.Context(), userID, levelID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Success: false,
+			Error: &models.APIError{
+				Code:    models.ErrCodeInternalError,
+				Message: "Failed to retrieve friends leaderboard",
+			},
+		})
+	}
+
+	return c.JSON(resp)
+}

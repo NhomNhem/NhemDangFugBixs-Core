@@ -51,6 +51,35 @@ func (r *postgresPlayerRepository) GetByPlayFabID(ctx context.Context, playfabID
 	return &player, nil
 }
 
+func (r *postgresPlayerRepository) GetByID(ctx context.Context, id uuid.UUID) (*models.Player, error) {
+	if r.db == nil {
+		return &models.Player{
+			ID:         id,
+			PlayFabID:  "MOCK_PLAYFAB_ID",
+			CreatedAt:  time.Now(),
+			LastSeenAt: time.Now(),
+		}, nil
+	}
+
+	var player models.Player
+	err := r.db.QueryRow(ctx, `
+		SELECT id, playfab_id, display_name, created_at, last_seen_at
+		FROM players
+		WHERE id = $1
+	`, id).Scan(
+		&player.ID, &player.PlayFabID, &player.DisplayName, &player.CreatedAt, &player.LastSeenAt,
+	)
+
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get player by id: %w", err)
+	}
+
+	return &player, nil
+}
+
 func (r *postgresPlayerRepository) Create(ctx context.Context, player *models.Player) error {
 	if r.db == nil {
 		return nil // Success in mock mode

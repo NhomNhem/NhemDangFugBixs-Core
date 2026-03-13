@@ -1,0 +1,16 @@
+# .mockery.yaml - Mockery configuration for Hollow Wilds Backend
+
+with-expecter: true
+all: true
+dir: internal/mocks
+outpkg: mocks
+filename: "{{.InterfaceName}}.go"
+packages:
+  github.com/NhomNhem/HollowWilds-Backend/internal/domain/repository:
+    config:
+      dir: internal/mocks/repository
+      outpkg: repository_mock
+  github.com/NhomNhem/HollowWilds-Backend/internal/domain/usecase:
+    config:
+      dir: internal/mocks/usecase
+      outpkg: usecase_mock

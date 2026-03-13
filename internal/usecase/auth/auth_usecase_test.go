@@ -6,16 +6,16 @@ import (
 	"testing"
 
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
-	"github.com/NhomNhem/HollowWilds-Backend/internal/mocks/repository"
+	repository_mock "github.com/NhomNhem/HollowWilds-Backend/internal/mocks/repository"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestAuthUsecase_Login(t *testing.T) {
-	playerRepo := new(repo_mock.PlayerRepository)
-	identityRepo := new(repo_mock.IdentityRepository)
-	tokenRepo := new(repo_mock.TokenRepository)
+	playerRepo := new(repository_mock.MockPlayerRepository)
+	identityRepo := new(repository_mock.MockIdentityRepository)
+	tokenRepo := new(repository_mock.MockTokenRepository)
 	usecase := NewAuthUsecase(playerRepo, identityRepo, tokenRepo)
 
 	ctx := context.Background()
@@ -39,7 +39,7 @@ func TestAuthUsecase_Login(t *testing.T) {
 		assert.Equal(t, playerID.String(), resp.PlayerID)
 		assert.NotEmpty(t, resp.Token)
 		assert.NotEmpty(t, resp.RefreshToken)
-		
+
 		identityRepo.AssertExpectations(t)
 		playerRepo.AssertExpectations(t)
 		tokenRepo.AssertExpectations(t)
@@ -57,9 +57,9 @@ func TestAuthUsecase_Login(t *testing.T) {
 }
 
 func TestAuthUsecase_Logout(t *testing.T) {
-	playerRepo := new(repo_mock.PlayerRepository)
-	identityRepo := new(repo_mock.IdentityRepository)
-	tokenRepo := new(repo_mock.TokenRepository)
+	playerRepo := new(repository_mock.MockPlayerRepository)
+	identityRepo := new(repository_mock.MockIdentityRepository)
+	tokenRepo := new(repository_mock.MockTokenRepository)
 	usecase := NewAuthUsecase(playerRepo, identityRepo, tokenRepo)
 
 	ctx := context.Background()

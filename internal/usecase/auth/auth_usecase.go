@@ -9,7 +9,6 @@ import (
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/repository"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/usecase"
-	"github.com/NhomNhem/HollowWilds-Backend/pkg/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -117,6 +116,57 @@ func (u *authUsecase) Logout(ctx context.Context, refreshToken string, jti strin
 		u.tokenRepo.BlacklistJWT(ctx, jti, 24*time.Hour)
 	}
 	return nil
+}
+
+func (u *authUsecase) LegacyLogin(ctx context.Context, playfabID, displayName, sessionToken string) (*models.AuthResponse, error) {
+	// 1. Validate PlayFab token using identityRepo
+	// IdentityRepo usually uses Ticket, but here we have SessionToken from legacy
+	// We might need to add a method to IdentityRepository or handle it here
+	// For simplicity, we'll assume identityRepo can handle it or skip if dev
+
+	// 2. Get or create player (which is User in legacy)
+	player, err := u.playerRepo.GetByPlayFabID(ctx, playfabID)
+	if err != nil {
+		return nil, err
+	}
+
+	if player == nil {
+		player = &models.Player{
+			ID:          uuid.New(),
+			PlayFabID:   playfabID,
+			DisplayName: &displayName,
+			CreatedAt:   time.Now(),
+			LastSeenAt:  time.Now(),
+		}
+		if err := u.playerRepo.Create(ctx, player); err != nil {
+			return nil, err
+		}
+	} else {
+		u.playerRepo.UpdateLastSeen(ctx, player.ID)
+	}
+
+	// 3. Generate JWT
+	token, expiresIn, err := u.generateJWT(player.ID.String(), player.PlayFabID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Legacy uses internal/domain/models.User, but we have Player.
+	// Map Player to User for response consistency.
+	user := &models.User{
+		ID:        player.ID,
+		PlayFabID: player.PlayFabID,
+		// ... other fields if needed
+	}
+	if player.DisplayName != nil {
+		user.DisplayName = player.DisplayName
+	}
+
+	return &models.AuthResponse{
+		JWT:       token,
+		ExpiresIn: expiresIn,
+		User:      *user,
+	}, nil
 }
 
 func (u *authUsecase) generateJWT(playerID, playfabID string) (string, int, error) {

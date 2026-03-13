@@ -13,6 +13,7 @@ type SaveRepository interface {
 	Upsert(ctx context.Context, save *models.PlayerSave) error
 	CreateBackup(ctx context.Context, backup *models.PlayerSaveBackup) error
 	GetBackupsByPlayerID(ctx context.Context, playerID uuid.UUID) ([]models.PlayerSaveBackup, error)
+	GetBackupByID(ctx context.Context, backupID uuid.UUID) (*models.PlayerSaveBackup, error)
 	CountBackups(ctx context.Context, playerID uuid.UUID) (int, error)
 	DeleteOldestBackup(ctx context.Context, playerID uuid.UUID) error
 }

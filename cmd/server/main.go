@@ -18,17 +18,19 @@ import (
 	"github.com/joho/godotenv"
 
 	_ "github.com/NhomNhem/HollowWilds-Backend/docs"
-	"github.com/NhomNhem/HollowWilds-Backend/internal/api"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/database"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/delivery/http"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/infrastructure/cache"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/infrastructure/identity"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/infrastructure/persistence"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/middleware"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/admin"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/analytics"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/auth"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/leaderboard"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/level"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/player"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/talent"
 	"github.com/NhomNhem/HollowWilds-Backend/pkg/utils"
 )
 
@@ -55,6 +57,11 @@ import (
 // @in header
 // @name X-PlayFab-SessionToken
 // @description PlayFab session token for authentication
+var (
+	Version = "dev"
+	Commit  = "none"
+)
+
 func main() {
 	// Load environment variables
 	if err := godotenv.Load("configs/.env"); err != nil {
@@ -70,7 +77,7 @@ func main() {
 	}
 	slog.SetDefault(slog.New(handler))
 
-	slog.Info("Starting server initialization", "version", "1.1.0", "env", getEnv("ENV", "development"))
+	slog.Info("Starting server initialization", "version", Version, "commit", Commit, "env", getEnv("ENV", "development"))
 
 	// Security Hardening: Validate environment
 	isProd := os.Getenv("ENV") == "production"
@@ -209,22 +216,28 @@ func main() {
 	saveRepo := persistence.NewPostgresSaveRepository(database.Pool)
 	leaderboardRepo := persistence.NewPostgresLeaderboardRepository(database.Pool)
 	analyticsRepo := persistence.NewPostgresAnalyticsRepository(database.Pool)
+	talentRepo := persistence.NewPostgresTalentRepository(database.Pool)
+	levelRepo := persistence.NewPostgresLevelRepository(database.Pool)
+	adminRepo := persistence.NewPostgresAdminRepository(database.Pool)
 	redisRepo := cache.NewRedisRepository(utils.RedisClient)
 	identityRepo := identity.NewPlayFabRepository()
 
 	// Initialize Usecases
 	authUsecase := auth.NewAuthUsecase(playerRepo, identityRepo, redisRepo)
-	playerUsecase := player.NewPlayerUsecase(saveRepo, redisRepo)
-	leaderboardUsecase := leaderboard.NewLeaderboardUsecase(leaderboardRepo)
+	playerUsecase := player.NewPlayerUsecase(playerRepo, saveRepo, redisRepo)
+	leaderboardUsecase := leaderboard.NewLeaderboardUsecase(leaderboardRepo, playerRepo, identityRepo, redisRepo)
 	analyticsUsecase := analytics.NewAnalyticsUsecase(analyticsRepo)
+	talentUsecase := talent.NewTalentUsecase(talentRepo)
+	levelUsecase := level.NewLevelUsecase(levelRepo, leaderboardUsecase)
+	adminUsecase := admin.NewAdminUsecase(adminRepo, leaderboardRepo)
 
 	// Register handlers
-	authHandler := api.NewAuthHandler()
-	levelHandler := api.NewLevelHandler()
-	talentHandler := api.NewTalentHandler()
-	leaderboardHandler := http.NewLeaderboardHandler(leaderboardUsecase) // Updated
-	adminHandler := api.NewAdminHandler()
-	hollowWildsHandler := http.NewHollowWildsHandler(authUsecase, playerUsecase, analyticsUsecase) // New
+	authHandler := http.NewAuthHandler(authUsecase)
+	levelHandler := http.NewLevelHandler(levelUsecase)
+	talentHandler := http.NewTalentHandler(talentUsecase)
+	leaderboardHandler := http.NewLeaderboardHandler(leaderboardUsecase)
+	adminHandler := http.NewAdminHandler(adminUsecase)
+	hollowWildsHandler := http.NewHollowWildsHandler(authUsecase, playerUsecase, analyticsUsecase)
 
 	// Auth routes (public)
 	auth := apiV1.Group("/auth")
@@ -239,6 +252,7 @@ func main() {
 	player.Put("/save", hollowWildsHandler.UpdateSave)
 	player.Post("/save/backup", hollowWildsHandler.CreateBackup)
 	player.Get("/save/backups", hollowWildsHandler.GetBackups)
+	player.Post("/save/restore", hollowWildsHandler.RestoreFromBackup)
 
 	// Protected routes (require JWT)
 	levels := apiV1.Group("/levels", middleware.AuthMiddleware())
@@ -249,14 +263,26 @@ func main() {
 	talents.Post("/upgrade", talentHandler.UpgradeTalent)
 
 	// Leaderboard routes
-	leaderboard := apiV1.Group("/leaderboard")
-	leaderboard.Get("/", leaderboardHandler.GetHollowWildsLeaderboard)
-	leaderboard.Post("/submit", middleware.AuthMiddleware(), leaderboardHandler.SubmitHollowWildsEntry)
-	leaderboard.Get("/player", middleware.AuthMiddleware(), leaderboardHandler.GetPlayerHollowWildsStats)
+	lbHw := apiV1.Group("/leaderboard")
+	lbHw.Get("/", leaderboardHandler.GetHollowWildsLeaderboard)
+	lbHw.Post("/submit", middleware.AuthMiddleware(), leaderboardHandler.SubmitHollowWildsEntry)
+	lbHw.Get("/player", middleware.AuthMiddleware(), leaderboardHandler.GetPlayerHollowWildsStats)
+
+	// Legacy Leaderboard routes
+	leaderboards := apiV1.Group("/leaderboards")
+	leaderboards.Get("/:levelId", leaderboardHandler.GetGlobalLeaderboard)
+	leaderboards.Get("/:levelId/me", middleware.AuthMiddleware(), leaderboardHandler.GetPlayerRank)
+	leaderboards.Get("/:levelId/friends", middleware.AuthMiddleware(), leaderboardHandler.GetFriendsLeaderboard)
 
 	// Analytics routes
 	analytics := apiV1.Group("/analytics")
-	analytics.Post("/events", middleware.AuthMiddleware(), hollowWildsHandler.TrackEvents)
+	analytics.Post("/events", limiter.New(limiter.Config{
+		Max:        100,
+		Expiration: 60 * time.Second,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+	}), middleware.AuthMiddleware(), hollowWildsHandler.TrackEvents)
 	// Admin routes (require JWT + admin role)
 	admin := apiV1.Group("/admin", middleware.AuthMiddleware(), middleware.AdminMiddleware())
 	admin.Get("/users/search", adminHandler.SearchUsers)
@@ -268,6 +294,8 @@ func main() {
 	admin.Get("/users/:userId/export-data", adminHandler.ExportUserData)
 	admin.Get("/actions", adminHandler.GetAdminActions)
 	admin.Get("/stats/overview", adminHandler.GetSystemStats)
+	admin.Delete("/leaderboards/:levelId", adminHandler.ResetLeaderboard)
+	admin.Get("/leaderboards/stats", adminHandler.GetLeaderboardStats)
 
 	// Get port from env or default to 8080
 	port := getEnv("PORT", "8080")

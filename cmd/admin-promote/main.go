@@ -51,7 +51,7 @@ func main() {
 
 	} else {
 		// No argument provided - list users and promote first one
-		log.Println("🔍 Listing all users in database:\n")
+		log.Print("🔍 Listing all users in database:\n\n")
 
 		rows, err := pool.Query(context.Background(), `
 			SELECT id, playfab_id, username, is_admin, created_at

@@ -201,6 +201,19 @@ definitions:
       user:
         $ref: '#/definitions/models.UserProfile'
     type: object
+  models.GlobalLeaderboardResponse:
+    properties:
+      leaderboard:
+        items:
+          $ref: '#/definitions/models.LeaderboardEntry'
+        type: array
+      page:
+        type: integer
+      perPage:
+        type: integer
+      total:
+        type: integer
+    type: object
   models.HollowWildsAuthResponse:
     properties:
       expires_in:
@@ -252,6 +265,7 @@ definitions:
   models.HollowWildsLoginRequest:
     properties:
       playfab_session_ticket:
+        minLength: 1
         type: string
     required:
     - playfab_session_ticket
@@ -274,18 +288,76 @@ definitions:
       slot:
         type: integer
     type: object
+  models.LeaderboardEntry:
+    properties:
+      bestTime:
+        type: number
+      displayName:
+        type: string
+      firstCompleted:
+        type: string
+      levelsCompleted:
+        type: integer
+      maxMapUnlocked:
+        type: integer
+      playCount:
+        type: integer
+      playerId:
+        type: string
+      rank:
+        type: integer
+      stars:
+        type: integer
+      totalStars:
+        type: integer
+    type: object
+  models.LeaderboardStatsResponse:
+    properties:
+      average_time:
+        type: number
+      last_updated:
+        type: string
+      level_stats:
+        items:
+          $ref: '#/definitions/models.LevelStatsInfo'
+        type: array
+      levels_tracked:
+        type: integer
+      top_level_count:
+        type: integer
+      top_level_id:
+        type: string
+      total_entries:
+        type: integer
+      unique_players:
+        type: integer
+    type: object
   models.LeaderboardSubmitRequest:
     properties:
       character:
+        enum:
+        - RIMBA
+        - DARA
+        - BAYU
+        - SARI
         type: string
       combat_build:
+        enum:
+        - balanced
+        - berserker
+        - shade_walker
         type: string
       run_metadata:
         additionalProperties: true
         type: object
       type:
+        enum:
+        - longest_run_days
+        - sebilah_soul_level
+        - bosses_killed
         type: string
       value:
+        minimum: 0
         type: integer
       world_seed:
         type: integer
@@ -354,6 +426,32 @@ definitions:
       success:
         type: boolean
     type: object
+  models.LevelLeaderboardResponse:
+    properties:
+      leaderboard:
+        items:
+          $ref: '#/definitions/models.LeaderboardEntry'
+        type: array
+      levelId:
+        type: string
+      mapId:
+        type: string
+      total:
+        type: integer
+    type: object
+  models.LevelStatsInfo:
+    properties:
+      average_time:
+        type: number
+      best_time:
+        type: number
+      level_id:
+        type: string
+      total_entries:
+        type: integer
+      unique_players:
+        type: integer
+    type: object
   models.LoadGameResponse:
     properties:
       base:
@@ -416,17 +514,57 @@ definitions:
     properties:
       character:
         description: RIMBA, DARA, BAYU, SARI
+        enum:
+        - RIMBA
+        - DARA
+        - BAYU
+        - SARI
         type: string
       health:
+        maximum: 100
+        minimum: 0
         type: number
       hunger:
+        maximum: 100
+        minimum: 0
         type: number
       position:
         $ref: '#/definitions/models.Vector2D'
       sanity:
+        maximum: 100
+        minimum: 0
         type: number
       warmth:
+        maximum: 100
+        minimum: 0
         type: number
+    required:
+    - character
+    type: object
+  models.PlayerStatsResponse:
+    properties:
+      averageStars:
+        type: number
+      bestTime:
+        type: number
+      displayName:
+        type: string
+      globalRank:
+        type: integer
+      levelsCompleted:
+        type: integer
+      maxMapUnlocked:
+        type: integer
+      playerId:
+        type: string
+      stars:
+        type: integer
+      surroundingPlayers:
+        items:
+          $ref: '#/definitions/models.LeaderboardEntry'
+        type: array
+      totalStars:
+        type: integer
     type: object
   models.RefreshTokenRequest:
     properties:
@@ -441,6 +579,21 @@ definitions:
         type: integer
       token:
         type: string
+    type: object
+  models.ResetLeaderboardRequest:
+    properties:
+      reason:
+        minLength: 10
+        type: string
+    required:
+    - reason
+    type: object
+  models.RestoreRequest:
+    properties:
+      backup_id:
+        type: string
+    required:
+    - backup_id
     type: object
   models.SaveGameRequest:
     properties:
@@ -764,6 +917,113 @@ paths:
       security:
       - BearerAuth: []
       summary: Get admin actions log
+      tags:
+      - Admin
+  /admin/leaderboards/{levelId}:
+    delete:
+      consumes:
+      - application/json
+      description: Reset all entries for a specific level (admin only)
+      parameters:
+      - default: Bearer
+        description: Bearer JWT token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Level ID
+        in: path
+        name: levelId
+        required: true
+        type: string
+      - description: Reset reason
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResetLeaderboardRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Leaderboard reset
+          schema:
+            $ref: '#/definitions/models.APIResponse'
+        "400":
+          description: Invalid request
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/models.APIError'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/models.APIError'
+              type: object
+        "403":
+          description: Forbidden - Admin only
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/models.APIError'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Reset leaderboard
+      tags:
+      - Admin
+  /admin/leaderboards/stats:
+    get:
+      description: Get analytics for level leaderboards (admin only)
+      parameters:
+      - default: Bearer
+        description: Bearer JWT token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Leaderboard stats
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.LeaderboardStatsResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/models.APIError'
+              type: object
+        "403":
+          description: Forbidden - Admin only
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/models.APIError'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get leaderboard statistics
       tags:
       - Admin
   /admin/stats/overview:
@@ -1615,6 +1875,71 @@ paths:
       summary: Submit HW Run
       tags:
       - HollowWilds
+  /leaderboards/{levelId}:
+    get:
+      description: Get ranked times for a specific level
+      parameters:
+      - description: Level ID
+        in: path
+        name: levelId
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Entries per page
+        in: query
+        name: perPage
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GlobalLeaderboardResponse'
+      summary: Get Global Level Leaderboard
+      tags:
+      - Leaderboard
+  /leaderboards/{levelId}/friends:
+    get:
+      description: Get friends rankings for a specific level
+      parameters:
+      - description: Level ID
+        in: path
+        name: levelId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LevelLeaderboardResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Friends Level Leaderboard
+      tags:
+      - Leaderboard
+  /leaderboards/{levelId}/me:
+    get:
+      description: Get player's rank and surrounding players for a specific level
+      parameters:
+      - description: Level ID
+        in: path
+        name: levelId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PlayerStatsResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Player Level Rank
+      tags:
+      - Leaderboard
   /levels/complete:
     post:
       consumes:
@@ -1760,6 +2085,39 @@ paths:
       security:
       - BearerAuth: []
       summary: List HW Backups
+      tags:
+      - HollowWilds
+  /player/save/restore:
+    post:
+      consumes:
+      - application/json
+      description: Restore game save data from a selected backup
+      parameters:
+      - description: Restore request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RestoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Restore confirmed
+          schema:
+            $ref: '#/definitions/models.SaveGameResponse'
+        "404":
+          description: Backup not found
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.APIResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/models.APIError'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Restore HW Backup
       tags:
       - HollowWilds
   /talents:

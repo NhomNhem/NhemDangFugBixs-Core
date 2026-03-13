@@ -150,6 +150,32 @@ func (r *postgresSaveRepository) GetBackupsByPlayerID(ctx context.Context, playe
 	return backups, nil
 }
 
+func (r *postgresSaveRepository) GetBackupByID(ctx context.Context, backupID uuid.UUID) (*models.PlayerSaveBackup, error) {
+	if r.db == nil {
+		return nil, nil
+	}
+	var backup models.PlayerSaveBackup
+	var saveDataJSON []byte
+	err := r.db.QueryRow(ctx, `
+		SELECT id, player_id, save_version, save_data, created_at
+		FROM player_save_backups
+		WHERE id = $1
+	`, backupID).Scan(&backup.ID, &backup.PlayerID, &backup.SaveVersion, &saveDataJSON, &backup.CreatedAt)
+
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get backup by id: %w", err)
+	}
+
+	if err := json.Unmarshal(saveDataJSON, &backup.SaveData); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal backup data: %w", err)
+	}
+
+	return &backup, nil
+}
+
 func (r *postgresSaveRepository) CountBackups(ctx context.Context, playerID uuid.UUID) (int, error) {
 	if r.db == nil {
 		return 1, nil

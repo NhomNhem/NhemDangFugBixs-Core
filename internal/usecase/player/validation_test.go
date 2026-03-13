@@ -5,16 +5,17 @@ import (
 	"testing"
 
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
-	"github.com/NhomNhem/HollowWilds-Backend/internal/mocks/repository"
+	repository_mock "github.com/NhomNhem/HollowWilds-Backend/internal/mocks/repository"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestPlayerUsecase_Validation(t *testing.T) {
-	saveRepo := new(repo_mock.SaveRepository)
-	cacheRepo := new(repo_mock.CacheRepository)
-	usecase := NewPlayerUsecase(saveRepo, cacheRepo)
+	playerRepo := new(repository_mock.MockPlayerRepository)
+	saveRepo := new(repository_mock.MockSaveRepository)
+	cacheRepo := new(repository_mock.MockCacheRepository)
+	usecase := NewPlayerUsecase(playerRepo, saveRepo, cacheRepo)
 
 	ctx := context.Background()
 	playerID := uuid.New()
@@ -62,6 +63,7 @@ func TestPlayerUsecase_Validation(t *testing.T) {
 
 		saveRepo.On("GetByPlayerID", ctx, playerID).Return(nil, nil).Once()
 		saveRepo.On("Upsert", ctx, mock.Anything).Return(nil).Once()
+		playerRepo.On("UpdateLastSeen", ctx, playerID).Return(nil).Once()
 		cacheRepo.On("Delete", ctx, mock.Anything).Return(nil).Once()
 
 		result, err := usecase.SaveGame(ctx, playerID, validData, 0)
@@ -69,5 +71,6 @@ func TestPlayerUsecase_Validation(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		saveRepo.AssertExpectations(t)
+		playerRepo.AssertExpectations(t)
 	})
 }

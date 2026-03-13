@@ -127,3 +127,29 @@ type ExportUserDataResponse struct {
 	BanHistory       []UserBan        `json:"ban_history"`
 	ExportedAt       time.Time        `json:"exported_at"`
 }
+
+// ResetLeaderboardRequest for resetting a leaderboard
+type ResetLeaderboardRequest struct {
+	Reason string `json:"reason" validate:"required,min=10"`
+}
+
+// LeaderboardStatsResponse for leaderboard analytics
+type LeaderboardStatsResponse struct {
+	TotalEntries  int64            `json:"total_entries"`
+	UniquePlayers int64            `json:"unique_players"`
+	LevelsTracked int              `json:"levels_tracked"`
+	TopLevelID    string           `json:"top_level_id,omitempty"`
+	TopLevelCount int              `json:"top_level_count,omitempty"`
+	AverageTime   float64          `json:"average_time,omitempty"`
+	LastUpdated   time.Time        `json:"last_updated"`
+	LevelStats    []LevelStatsInfo `json:"level_stats"`
+}
+
+// LevelStatsInfo for individual level stats
+type LevelStatsInfo struct {
+	LevelID       string  `json:"level_id"`
+	TotalEntries  int     `json:"total_entries"`
+	UniquePlayers int     `json:"unique_players"`
+	AverageTime   float64 `json:"average_time"`
+	BestTime      float64 `json:"best_time"`
+}

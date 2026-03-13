@@ -138,6 +138,197 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/leaderboards/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get analytics for level leaderboards (admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get leaderboard statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer",
+                        "description": "Bearer JWT token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Leaderboard stats",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.LeaderboardStatsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/models.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Admin only",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/models.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/leaderboards/{levelId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Reset all entries for a specific level (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Reset leaderboard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer",
+                        "description": "Bearer JWT token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Level ID",
+                        "name": "levelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reset reason",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ResetLeaderboardRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Leaderboard reset",
+                        "schema": {
+                            "$ref": "#/definitions/models.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/models.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/models.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Admin only",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/models.APIError"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/admin/stats/overview": {
             "get": {
                 "security": [
@@ -1652,6 +1843,108 @@ const docTemplate = `{
                 }
             }
         },
+        "/leaderboards/{levelId}": {
+            "get": {
+                "description": "Get ranked times for a specific level",
+                "tags": [
+                    "Leaderboard"
+                ],
+                "summary": "Get Global Level Leaderboard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Level ID",
+                        "name": "levelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Entries per page",
+                        "name": "perPage",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GlobalLeaderboardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/leaderboards/{levelId}/friends": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get friends rankings for a specific level",
+                "tags": [
+                    "Leaderboard"
+                ],
+                "summary": "Get Friends Level Leaderboard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Level ID",
+                        "name": "levelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.LevelLeaderboardResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/leaderboards/{levelId}/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get player's rank and surrounding players for a specific level",
+                "tags": [
+                    "Leaderboard"
+                ],
+                "summary": "Get Player Level Rank",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Level ID",
+                        "name": "levelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PlayerStatsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/levels/complete": {
             "post": {
                 "security": [
@@ -1902,6 +2195,63 @@ const docTemplate = `{
                         "description": "Backup list",
                         "schema": {
                             "$ref": "#/definitions/models.BackupListResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/player/save/restore": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Restore game save data from a selected backup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HollowWilds"
+                ],
+                "summary": "Restore HW Backup",
+                "parameters": [
+                    {
+                        "description": "Restore request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RestoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Restore confirmed",
+                        "schema": {
+                            "$ref": "#/definitions/models.SaveGameResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Backup not found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "$ref": "#/definitions/models.APIError"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -2412,6 +2762,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.GlobalLeaderboardResponse": {
+            "type": "object",
+            "properties": {
+                "leaderboard": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.LeaderboardEntry"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "perPage": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.HollowWildsAuthResponse": {
             "type": "object",
             "properties": {
@@ -2492,7 +2862,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "playfab_session_ticket": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1
                 }
             }
         },
@@ -2524,6 +2895,73 @@ const docTemplate = `{
                 }
             }
         },
+        "models.LeaderboardEntry": {
+            "type": "object",
+            "properties": {
+                "bestTime": {
+                    "type": "number"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "firstCompleted": {
+                    "type": "string"
+                },
+                "levelsCompleted": {
+                    "type": "integer"
+                },
+                "maxMapUnlocked": {
+                    "type": "integer"
+                },
+                "playCount": {
+                    "type": "integer"
+                },
+                "playerId": {
+                    "type": "string"
+                },
+                "rank": {
+                    "type": "integer"
+                },
+                "stars": {
+                    "type": "integer"
+                },
+                "totalStars": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.LeaderboardStatsResponse": {
+            "type": "object",
+            "properties": {
+                "average_time": {
+                    "type": "number"
+                },
+                "last_updated": {
+                    "type": "string"
+                },
+                "level_stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.LevelStatsInfo"
+                    }
+                },
+                "levels_tracked": {
+                    "type": "integer"
+                },
+                "top_level_count": {
+                    "type": "integer"
+                },
+                "top_level_id": {
+                    "type": "string"
+                },
+                "total_entries": {
+                    "type": "integer"
+                },
+                "unique_players": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.LeaderboardSubmitRequest": {
             "type": "object",
             "required": [
@@ -2533,20 +2971,37 @@ const docTemplate = `{
             ],
             "properties": {
                 "character": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "RIMBA",
+                        "DARA",
+                        "BAYU",
+                        "SARI"
+                    ]
                 },
                 "combat_build": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "balanced",
+                        "berserker",
+                        "shade_walker"
+                    ]
                 },
                 "run_metadata": {
                     "type": "object",
                     "additionalProperties": true
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "longest_run_days",
+                        "sebilah_soul_level",
+                        "bosses_killed"
+                    ]
                 },
                 "value": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "world_seed": {
                     "type": "integer"
@@ -2641,6 +3096,46 @@ const docTemplate = `{
                 }
             }
         },
+        "models.LevelLeaderboardResponse": {
+            "type": "object",
+            "properties": {
+                "leaderboard": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.LeaderboardEntry"
+                    }
+                },
+                "levelId": {
+                    "type": "string"
+                },
+                "mapId": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.LevelStatsInfo": {
+            "type": "object",
+            "properties": {
+                "average_time": {
+                    "type": "number"
+                },
+                "best_time": {
+                    "type": "number"
+                },
+                "level_id": {
+                    "type": "string"
+                },
+                "total_entries": {
+                    "type": "integer"
+                },
+                "unique_players": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.LoadGameResponse": {
             "type": "object",
             "properties": {
@@ -2732,25 +3227,80 @@ const docTemplate = `{
         },
         "models.PlayerState": {
             "type": "object",
+            "required": [
+                "character"
+            ],
             "properties": {
                 "character": {
                     "description": "RIMBA, DARA, BAYU, SARI",
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "RIMBA",
+                        "DARA",
+                        "BAYU",
+                        "SARI"
+                    ]
                 },
                 "health": {
-                    "type": "number"
+                    "type": "number",
+                    "maximum": 100,
+                    "minimum": 0
                 },
                 "hunger": {
-                    "type": "number"
+                    "type": "number",
+                    "maximum": 100,
+                    "minimum": 0
                 },
                 "position": {
                     "$ref": "#/definitions/models.Vector2D"
                 },
                 "sanity": {
-                    "type": "number"
+                    "type": "number",
+                    "maximum": 100,
+                    "minimum": 0
                 },
                 "warmth": {
+                    "type": "number",
+                    "maximum": 100,
+                    "minimum": 0
+                }
+            }
+        },
+        "models.PlayerStatsResponse": {
+            "type": "object",
+            "properties": {
+                "averageStars": {
                     "type": "number"
+                },
+                "bestTime": {
+                    "type": "number"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "globalRank": {
+                    "type": "integer"
+                },
+                "levelsCompleted": {
+                    "type": "integer"
+                },
+                "maxMapUnlocked": {
+                    "type": "integer"
+                },
+                "playerId": {
+                    "type": "string"
+                },
+                "stars": {
+                    "type": "integer"
+                },
+                "surroundingPlayers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.LeaderboardEntry"
+                    }
+                },
+                "totalStars": {
+                    "type": "integer"
                 }
             }
         },
@@ -2772,6 +3322,29 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ResetLeaderboardRequest": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "minLength": 10
+                }
+            }
+        },
+        "models.RestoreRequest": {
+            "type": "object",
+            "required": [
+                "backup_id"
+            ],
+            "properties": {
+                "backup_id": {
                     "type": "string"
                 }
             }
