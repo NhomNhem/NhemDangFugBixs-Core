@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -48,12 +48,12 @@ func InitDB() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.Println("🔄 Connecting to Supabase... (this may take 10-30 seconds)")
+	slog.Info("Connecting to Supabase...", "timeout", "30s")
 	if err := Pool.Ping(ctx); err != nil {
 		return fmt.Errorf("unable to ping database: %w", err)
 	}
 
-	log.Println("✅ Connected to Supabase PostgreSQL")
+	slog.Info("Connected to Supabase PostgreSQL")
 	return nil
 }
 
@@ -66,6 +66,6 @@ func GetDB() *pgxpool.Pool {
 func Close() {
 	if Pool != nil {
 		Pool.Close()
-		log.Println("🔌 Database connection closed")
+		slog.Info("Database connection closed")
 	}
 }

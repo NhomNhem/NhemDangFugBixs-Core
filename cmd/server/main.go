@@ -1,15 +1,18 @@
 package main
 
 import (
+	"context"
 	"log"
+	"log/slog"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
@@ -58,26 +61,53 @@ func main() {
 		log.Println("No .env file found, using system environment variables")
 	}
 
+	// Initialize structured logging
+	var handler slog.Handler
+	if os.Getenv("ENV") == "production" {
+		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
+	} else {
+		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})
+	}
+	slog.SetDefault(slog.New(handler))
+
+	slog.Info("Starting server initialization", "version", "1.1.0", "env", getEnv("ENV", "development"))
+
+	// Security Hardening: Validate environment
+	isProd := os.Getenv("ENV") == "production"
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if isProd {
+		if jwtSecret == "" || len(jwtSecret) < 32 {
+			slog.Error("CRITICAL: JWT_SECRET is too short or missing in production! System must have at least 32 characters.")
+			os.Exit(1)
+		}
+		if os.Getenv("PLAYFAB_TITLE_ID") == "" || os.Getenv("PLAYFAB_TITLE_ID") == "DEV" {
+			slog.Error("CRITICAL: PLAYFAB_TITLE_ID cannot be empty or 'DEV' in production!")
+			os.Exit(1)
+		}
+		if os.Getenv("ALLOWED_ORIGINS") == "" || os.Getenv("ALLOWED_ORIGINS") == "*" {
+			slog.Warn("SECURITY: ALLOWED_ORIGINS is not set or permissive in production. Consider restricting this.")
+		}
+	}
+
 	// Initialize database connection (optional for development)
 	if err := database.InitDB(); err != nil {
-		log.Printf("⚠️  Database connection failed: %v", err)
-		log.Println("⚠️  Continuing without database (API endpoints will return mock data)")
-		log.Println("💡 To fix: Check network/firewall, or deploy to server with IPv6 support")
+		slog.Error("Database connection failed", "error", err)
+		slog.Warn("Continuing without database (API endpoints will return mock data)")
 	}
 	defer database.Close()
 
 	// Initialize Redis connection
 	if err := utils.InitRedis(); err != nil {
-		log.Printf("⚠️  Redis connection failed: %v", err)
-		log.Println("⚠️  Continuing without Redis (caching and sessions will be disabled)")
+		slog.Error("Redis connection failed", "error", err)
+		slog.Warn("Continuing without Redis (caching and sessions will be disabled)")
 	}
 	defer utils.CloseRedis()
 
-	// Run database migrations (only if connected)
+	// Run automated database migrations (only if connected)
 	if database.Pool != nil {
 		if err := database.RunMigrations(); err != nil {
-			log.Printf("⚠️  Migration failed: %v", err)
-			log.Println("Continuing without migrations (tables may already exist)")
+			slog.Error("Automated migrations failed", "error", err)
+			slog.Warn("Continuing server startup despite migration failure")
 		}
 	}
 
@@ -101,9 +131,8 @@ func main() {
 
 	// Middleware
 	app.Use(recover.New())
-	app.Use(logger.New(logger.Config{
-		Format: "[${time}] ${status} - ${method} ${path} (${latency})\n",
-	}))
+	app.Use(middleware.RequestIDMiddleware())
+	app.Use(middleware.LoggerMiddleware())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: getEnv("ALLOWED_ORIGINS", "*"),
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization, X-PlayFab-SessionToken",
@@ -243,15 +272,40 @@ func main() {
 	// Get port from env or default to 8080
 	port := getEnv("PORT", "8080")
 
-	// Start server
-	log.Printf("🚀 Server starting on port %s...", port)
-	log.Printf("📝 Environment: %s", getEnv("ENV", "development"))
-	log.Printf("🔗 Health check: http://localhost:%s/health", port)
-	log.Printf("🔗 API docs: http://localhost:%s/api/v1/", port)
+	// Start server in a goroutine
+	go func() {
+		slog.Info("Server starting", "port", port)
+		if err := app.Listen(":" + port); err != nil {
+			slog.Error("Server failed to start", "error", err)
+			os.Exit(1)
+		}
+	}()
 
-	if err := app.Listen(":" + port); err != nil {
-		log.Fatalf("❌ Failed to start server: %v", err)
+	// Wait for termination signal
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	<-quit
+
+	slog.Info("Shutdown signal received, initiating graceful shutdown...")
+
+	// Create shutdown context with 10s timeout
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// 1. Stop Fiber (stop accepting new requests)
+	if err := app.ShutdownWithContext(shutdownCtx); err != nil {
+		slog.Error("Fiber shutdown failed", "error", err)
+	} else {
+		slog.Info("Fiber stopped successfully")
 	}
+
+	// 2. Close Database pool
+	database.Close()
+
+	// 3. Close Redis connection
+	utils.CloseRedis()
+
+	slog.Info("Graceful shutdown complete. Exiting.")
 }
 
 // Helper function to get environment variable with default value
