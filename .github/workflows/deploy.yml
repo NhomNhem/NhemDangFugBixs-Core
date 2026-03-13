@@ -18,6 +18,14 @@ jobs:
       - name: Setup Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Run Tests
+        run: go test ./...
+
       - name: Deploy to Fly.io
         run: |
           flyctl deploy --remote-only --app gamefeel-backend --wait-timeout 300
