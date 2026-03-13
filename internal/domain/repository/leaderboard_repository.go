@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/models"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 	"github.com/google/uuid"
 )
 

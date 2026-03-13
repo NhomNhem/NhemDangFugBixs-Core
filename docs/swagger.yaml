@@ -699,7 +699,7 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
-  title: GameFeel Backend API
+  title: Hollow Wilds Backend API
   version: 1.1.0
 paths:
   /admin/actions:

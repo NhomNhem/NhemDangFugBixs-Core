@@ -149,7 +149,7 @@ fly deploy
 Edit `cmd/server/main.go`:
 
 ```go
-// @title GameFeel Backend API
+// @title Hollow Wilds Backend API
 // @version 1.0
 // @description Your description
 // @host gamefeel-backend.fly.dev

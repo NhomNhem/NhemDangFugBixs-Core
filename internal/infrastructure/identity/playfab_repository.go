@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/repository"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/repository"
 )
 
 type playfabRepository struct {

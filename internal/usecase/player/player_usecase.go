@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/models"
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/repository"
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/usecase"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/repository"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/usecase"
 	"github.com/google/uuid"
 )
 

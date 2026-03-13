@@ -6,8 +6,8 @@ import (
 	"log"
 	"math"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/database"
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/models"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/database"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )

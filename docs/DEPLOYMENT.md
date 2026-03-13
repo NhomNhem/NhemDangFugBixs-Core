@@ -1,4 +1,4 @@
-# GameFeel Backend Deployment Guide
+# Hollow Wilds Backend Deployment Guide
 
 ## 🚀 Deploy to Fly.io
 
@@ -91,7 +91,7 @@ Expected response:
 ```json
 {
   "status": "ok",
-  "message": "GameFeel Backend is running",
+  "message": "Hollow Wilds Backend is running",
   "database": "connected",
   "version": "1.0.0"
 }

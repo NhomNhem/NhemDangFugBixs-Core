@@ -1,4 +1,4 @@
-module github.com/NhomNhem/GameFeel-Backend
+module github.com/NhomNhem/HollowWilds-Backend
 
 go 1.25.1
 

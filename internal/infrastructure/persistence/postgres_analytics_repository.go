@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/models"
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/repository"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/repository"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

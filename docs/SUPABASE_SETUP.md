@@ -211,7 +211,7 @@ func main() {
 
 	// Create Fiber app
 	app := fiber.New(fiber.Config{
-		AppName: "GameFeel Backend v1.0.0",
+		AppName: "Hollow Wilds Backend v1.0.0",
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			code := fiber.StatusInternalServerError
 			if e, ok := err.(*fiber.Error); ok {
@@ -252,7 +252,7 @@ func main() {
 
 		return c.JSON(fiber.Map{
 			"status":   "ok",
-			"message":  "GameFeel Backend is running",
+			"message":  "Hollow Wilds Backend is running",
 			"version":  "1.0.0",
 			"database": "connected",
 		})
@@ -321,7 +321,7 @@ curl http://localhost:8080/health
 # Should return:
 # {
 #   "status": "ok",
-#   "message": "GameFeel Backend is running",
+#   "message": "Hollow Wilds Backend is running",
 #   "version": "1.0.0",
 #   "database": "connected"
 # }

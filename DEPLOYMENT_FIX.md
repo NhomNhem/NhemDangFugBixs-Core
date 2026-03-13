@@ -148,7 +148,7 @@ go run cmd/server/main.go
 If it works locally but not on Fly.io → secrets issue!
 
 ### 4. Check GitHub Actions
-https://github.com/NhomNhem/GameFeel-Backend/actions
+https://github.com/NhomNhem/HollowWilds-Backend/actions
 
 See if deployment succeeded or failed with errors.
 

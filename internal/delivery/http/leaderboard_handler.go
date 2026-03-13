@@ -4,8 +4,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/models"
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/usecase"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/usecase"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )

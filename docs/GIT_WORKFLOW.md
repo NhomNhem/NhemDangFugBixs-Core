@@ -1,4 +1,4 @@
-# GameFeel Backend - Git Workflow
+# Hollow Wilds Backend - Git Workflow
 
 ## Branch Strategy
 

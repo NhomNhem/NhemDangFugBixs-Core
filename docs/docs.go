@@ -3172,7 +3172,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "gamefeel-backend.fly.dev",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "GameFeel Backend API",
+	Title:            "Hollow Wilds Backend API",
 	Description:      "Game backend API với PlayFab integration, anti-cheat validation, và talent system",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

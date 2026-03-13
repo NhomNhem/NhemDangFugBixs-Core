@@ -8,10 +8,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/models"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 )
 
-var baseURL = "http://localhost:8080/api/v1"
+var baseURL = "https://gamefeel-backend.fly.dev/api/v1"
 
 func main() {
 	// Check for environment overrides

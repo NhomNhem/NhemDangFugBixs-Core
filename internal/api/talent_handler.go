@@ -3,8 +3,8 @@ package api
 import (
 	"log"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/models"
-	"github.com/NhomNhem/GameFeel-Backend/internal/services"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )

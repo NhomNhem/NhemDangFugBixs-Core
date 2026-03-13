@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "Game backend API với PlayFab integration, anti-cheat validation, và talent system",
-        "title": "GameFeel Backend API",
+        "title": "Hollow Wilds Backend API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",

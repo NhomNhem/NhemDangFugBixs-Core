@@ -1,16 +1,20 @@
 package middleware
 
 import (
+	"os"
 	"strings"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/models"
-	"github.com/NhomNhem/GameFeel-Backend/internal/services"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // AuthMiddleware validates JWT token and sets user context
 func AuthMiddleware() fiber.Handler {
-	authService := services.NewAuthService()
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "dev-secret-key-123"
+	}
 
 	return func(c *fiber.Ctx) error {
 		authHeader := c.Get("Authorization")
@@ -25,21 +29,14 @@ func AuthMiddleware() fiber.Handler {
 		}
 
 		// Extract token from "Bearer <token>"
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		if token == authHeader {
-			// No "Bearer " prefix
-			return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
-				Success: false,
-				Error: &models.APIError{
-					Code:    models.ErrCodeUnauthorized,
-					Message: "Invalid authorization format. Use: Bearer <token>",
-				},
-			})
-		}
-
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		
 		// Verify JWT
-		claims, err := authService.VerifyJWT(token)
-		if err != nil {
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return []byte(jwtSecret), nil
+		})
+
+		if err != nil || !token.Valid {
 			return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
 				Success: false,
 				Error: &models.APIError{
@@ -49,9 +46,20 @@ func AuthMiddleware() fiber.Handler {
 			})
 		}
 
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
+				Success: false,
+				Error: &models.APIError{
+					Code:    models.ErrCodeInvalidToken,
+					Message: "Invalid token claims",
+				},
+			})
+		}
+
 		// Store user info in context for downstream handlers
-		c.Locals("userId", claims.UserID)
-		c.Locals("playfabId", claims.PlayFabID)
+		c.Locals("userId", claims["userId"])
+		c.Locals("playfabId", claims["playfabId"])
 
 		return c.Next()
 	}

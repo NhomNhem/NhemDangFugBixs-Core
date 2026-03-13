@@ -14,23 +14,22 @@ import (
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
 
-	_ "github.com/NhomNhem/GameFeel-Backend/docs"
-	"github.com/NhomNhem/GameFeel-Backend/internal/api"
-	"github.com/NhomNhem/GameFeel-Backend/internal/database"
-	"github.com/NhomNhem/GameFeel-Backend/internal/delivery/http"
-	"github.com/NhomNhem/GameFeel-Backend/internal/infrastructure/cache"
-	"github.com/NhomNhem/GameFeel-Backend/internal/infrastructure/identity"
-	"github.com/NhomNhem/GameFeel-Backend/internal/infrastructure/persistence"
-	"github.com/NhomNhem/GameFeel-Backend/internal/middleware"
-	"github.com/NhomNhem/GameFeel-Backend/internal/services"
-	"github.com/NhomNhem/GameFeel-Backend/internal/usecase/analytics"
-	"github.com/NhomNhem/GameFeel-Backend/internal/usecase/auth"
-	"github.com/NhomNhem/GameFeel-Backend/internal/usecase/leaderboard"
-	"github.com/NhomNhem/GameFeel-Backend/internal/usecase/player"
-	"github.com/NhomNhem/GameFeel-Backend/pkg/utils"
+	_ "github.com/NhomNhem/HollowWilds-Backend/docs"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/api"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/database"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/delivery/http"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/infrastructure/cache"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/infrastructure/identity"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/infrastructure/persistence"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/middleware"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/analytics"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/auth"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/leaderboard"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/player"
+	"github.com/NhomNhem/HollowWilds-Backend/pkg/utils"
 )
 
-// @title GameFeel Backend API
+// @title Hollow Wilds Backend API
 // @version 1.1.0
 // @description Game backend API với PlayFab integration, anti-cheat validation, và talent system
 // @termsOfService http://swagger.io/terms/
@@ -84,7 +83,7 @@ func main() {
 
 	// Create Fiber app
 	app := fiber.New(fiber.Config{
-		AppName: "GameFeel Backend v1.0.0",
+		AppName: "Hollow Wilds Backend v1.1.0",
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			code := fiber.StatusInternalServerError
 			if e, ok := err.(*fiber.Error); ok {
@@ -133,7 +132,7 @@ func main() {
 	app.Get("/health", func(c *fiber.Ctx) error {
 		health := fiber.Map{
 			"status":  "ok",
-			"message": "GameFeel Backend is running",
+			"message": "Hollow Wilds Backend is running",
 			"version": "1.1.0",
 		}
 

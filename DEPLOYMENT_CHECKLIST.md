@@ -86,7 +86,7 @@ curl https://gamefeel-backend.fly.dev/health
 ```json
 {
   "status": "ok",
-  "message": "GameFeel Backend is running",
+  "message": "Hollow Wilds Backend is running",
   "version": "1.0.0",
   "database": "connected"
 }
@@ -262,7 +262,7 @@ Sau khi deploy xong, test trong Unity:
 ### Error: Can't connect
 - Check Fly.io deployment: `fly status`
 - Check logs: `fly logs`
-- Verify GitHub Actions completed: https://github.com/NhomNhem/GameFeel-Backend/actions
+- Verify GitHub Actions completed: https://github.com/NhomNhem/HollowWilds-Backend/actions
 
 ---
 

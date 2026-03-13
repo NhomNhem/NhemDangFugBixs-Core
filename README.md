@@ -1,4 +1,4 @@
-# GameFeel Backend Server
+# Hollow Wilds Backend Server
 
 Go backend server for GameFeel Unity game.
 

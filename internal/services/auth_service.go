@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/NhomNhem/GameFeel-Backend/internal/database"
-	"github.com/NhomNhem/GameFeel-Backend/internal/domain/models"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/database"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"

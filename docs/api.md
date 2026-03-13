@@ -1,4 +1,4 @@
-# GameFeel Backend API Documentation
+# Hollow Wilds Backend API Documentation
 
 **Base URL**: `http://localhost:8080/api/v1` (development)  
 **Production URL**: `https://api.yourgame.com/api/v1`
@@ -28,7 +28,7 @@ Check if server is running.
 ```json
 {
   "status": "ok",
-  "message": "GameFeel Backend is running",
+  "message": "Hollow Wilds Backend is running",
   "version": "1.0.0"
 }
 ```

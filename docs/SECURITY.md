@@ -1,4 +1,4 @@
-# Security Guide - GameFeel Backend
+# Security Guide - Hollow Wilds Backend
 
 ## Overview
 
