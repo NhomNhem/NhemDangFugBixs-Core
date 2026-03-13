@@ -23,6 +23,12 @@ jobs:
         with:
           go-version: '1.25'
 
+      - name: Install Swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+
+      - name: Regenerate Swagger Docs
+        run: swag init -g cmd/server/main.go
+
       - name: Run Tests
         run: go test ./...
 

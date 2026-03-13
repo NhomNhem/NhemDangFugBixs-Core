@@ -1845,11 +1845,11 @@ const docTemplate = `{
         },
         "/leaderboards/{levelId}": {
             "get": {
-                "description": "Get ranked times for a specific level",
+                "description": "[DEPRECATED] Get ranked times for a specific level. Use /api/v1/leaderboard instead.",
                 "tags": [
-                    "Leaderboard"
+                    "Leaderboard (Legacy)"
                 ],
-                "summary": "Get Global Level Leaderboard",
+                "summary": "(DEPRECATED) Get Global Level Leaderboard",
                 "parameters": [
                     {
                         "type": "string",
@@ -1890,11 +1890,11 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get friends rankings for a specific level",
+                "description": "[DEPRECATED] Get friends rankings for a specific level.",
                 "tags": [
-                    "Leaderboard"
+                    "Leaderboard (Legacy)"
                 ],
-                "summary": "Get Friends Level Leaderboard",
+                "summary": "(DEPRECATED) Get Friends Level Leaderboard",
                 "parameters": [
                     {
                         "type": "string",
@@ -1921,11 +1921,11 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get player's rank and surrounding players for a specific level",
+                "description": "[DEPRECATED] Get player's rank and surrounding players for a specific level.",
                 "tags": [
-                    "Leaderboard"
+                    "Leaderboard (Legacy)"
                 ],
-                "summary": "Get Player Level Rank",
+                "summary": "(DEPRECATED) Get Player Level Rank",
                 "parameters": [
                     {
                         "type": "string",

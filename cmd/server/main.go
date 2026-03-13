@@ -28,9 +28,9 @@ import (
 	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/analytics"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/auth"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/leaderboard"
-	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/level"
+	// "github.com/NhomNhem/HollowWilds-Backend/internal/usecase/level" // DISABLED
 	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/player"
-	"github.com/NhomNhem/HollowWilds-Backend/internal/usecase/talent"
+	// "github.com/NhomNhem/HollowWilds-Backend/internal/usecase/talent" // DISABLED
 	"github.com/NhomNhem/HollowWilds-Backend/pkg/utils"
 )
 
@@ -198,14 +198,13 @@ func main() {
 	apiV1.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"success": true,
-			"message": "GameFeel API v1",
+			"message": "GameFeel API v1 (Hollow Wilds Phase 1)",
 			"endpoints": []string{
 				"GET  /health",
 				"GET  /api/v1/",
-				"POST /api/v1/auth/login",
-				"POST /api/v1/levels/complete",
-				"POST /api/v1/talents/upgrade",
-				"POST /api/v1/payments/create-session",
+				"POST /api/v1/auth/hw/login",
+				"PUT  /api/v1/player/save",
+				"GET  /api/v1/leaderboard",
 				"POST /api/v1/analytics/events",
 			},
 		})
@@ -216,8 +215,8 @@ func main() {
 	saveRepo := persistence.NewPostgresSaveRepository(database.Pool)
 	leaderboardRepo := persistence.NewPostgresLeaderboardRepository(database.Pool)
 	analyticsRepo := persistence.NewPostgresAnalyticsRepository(database.Pool)
-	talentRepo := persistence.NewPostgresTalentRepository(database.Pool)
-	levelRepo := persistence.NewPostgresLevelRepository(database.Pool)
+	// talentRepo := persistence.NewPostgresTalentRepository(database.Pool) // DISABLED
+	// levelRepo := persistence.NewPostgresLevelRepository(database.Pool) // DISABLED
 	adminRepo := persistence.NewPostgresAdminRepository(database.Pool)
 	redisRepo := cache.NewRedisRepository(utils.RedisClient)
 	identityRepo := identity.NewPlayFabRepository()
@@ -227,21 +226,21 @@ func main() {
 	playerUsecase := player.NewPlayerUsecase(playerRepo, saveRepo, redisRepo)
 	leaderboardUsecase := leaderboard.NewLeaderboardUsecase(leaderboardRepo, playerRepo, identityRepo, redisRepo)
 	analyticsUsecase := analytics.NewAnalyticsUsecase(analyticsRepo)
-	talentUsecase := talent.NewTalentUsecase(talentRepo)
-	levelUsecase := level.NewLevelUsecase(levelRepo, leaderboardUsecase)
+	// talentUsecase := talent.NewTalentUsecase(talentRepo) // DISABLED
+	// levelUsecase := level.NewLevelUsecase(levelRepo, leaderboardUsecase) // DISABLED
 	adminUsecase := admin.NewAdminUsecase(adminRepo, leaderboardRepo)
 
 	// Register handlers
-	authHandler := http.NewAuthHandler(authUsecase)
-	levelHandler := http.NewLevelHandler(levelUsecase)
-	talentHandler := http.NewTalentHandler(talentUsecase)
+	// authHandler := http.NewAuthHandler(authUsecase) // DISABLED
+	// levelHandler := http.NewLevelHandler(levelUsecase) // DISABLED
+	// talentHandler := http.NewTalentHandler(talentUsecase) // DISABLED
 	leaderboardHandler := http.NewLeaderboardHandler(leaderboardUsecase)
 	adminHandler := http.NewAdminHandler(adminUsecase)
 	hollowWildsHandler := http.NewHollowWildsHandler(authUsecase, playerUsecase, analyticsUsecase)
 
 	// Auth routes (public)
 	auth := apiV1.Group("/auth")
-	auth.Post("/login", authHandler.Login)
+	// auth.Post("/login", authHandler.Login) // LEGACY DISABLED
 	auth.Post("/hw/login", hollowWildsHandler.Login)
 	auth.Post("/refresh", hollowWildsHandler.Refresh)
 	auth.Delete("/logout", hollowWildsHandler.Logout)
@@ -254,13 +253,15 @@ func main() {
 	player.Get("/save/backups", hollowWildsHandler.GetBackups)
 	player.Post("/save/restore", hollowWildsHandler.RestoreFromBackup)
 
-	// Protected routes (require JWT)
-	levels := apiV1.Group("/levels", middleware.AuthMiddleware())
-	levels.Post("/complete", levelHandler.CompleteLevel)
+	// Protected routes (require JWT) - DISABLED LEGACY
+	/*
+		levels := apiV1.Group("/levels", middleware.AuthMiddleware())
+		levels.Post("/complete", levelHandler.CompleteLevel)
 
-	talents := apiV1.Group("/talents", middleware.AuthMiddleware())
-	talents.Get("/", talentHandler.GetTalents)
-	talents.Post("/upgrade", talentHandler.UpgradeTalent)
+		talents := apiV1.Group("/talents", middleware.AuthMiddleware())
+		talents.Get("/", talentHandler.GetTalents)
+		talents.Post("/upgrade", talentHandler.UpgradeTalent)
+	*/
 
 	// Leaderboard routes
 	lbHw := apiV1.Group("/leaderboard")
@@ -268,11 +269,13 @@ func main() {
 	lbHw.Post("/submit", middleware.AuthMiddleware(), leaderboardHandler.SubmitHollowWildsEntry)
 	lbHw.Get("/player", middleware.AuthMiddleware(), leaderboardHandler.GetPlayerHollowWildsStats)
 
-	// Legacy Leaderboard routes
-	leaderboards := apiV1.Group("/leaderboards")
-	leaderboards.Get("/:levelId", leaderboardHandler.GetGlobalLeaderboard)
-	leaderboards.Get("/:levelId/me", middleware.AuthMiddleware(), leaderboardHandler.GetPlayerRank)
-	leaderboards.Get("/:levelId/friends", middleware.AuthMiddleware(), leaderboardHandler.GetFriendsLeaderboard)
+	// Legacy Leaderboard routes - DISABLED
+	/*
+		leaderboards := apiV1.Group("/leaderboards")
+		leaderboards.Get("/:levelId", leaderboardHandler.GetGlobalLeaderboard)
+		leaderboards.Get("/:levelId/me", middleware.AuthMiddleware(), leaderboardHandler.GetPlayerRank)
+		leaderboards.Get("/:levelId/friends", middleware.AuthMiddleware(), leaderboardHandler.GetFriendsLeaderboard)
+	*/
 
 	// Analytics routes
 	analytics := apiV1.Group("/analytics")

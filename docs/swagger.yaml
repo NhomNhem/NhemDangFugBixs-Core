@@ -1877,7 +1877,8 @@ paths:
       - HollowWilds
   /leaderboards/{levelId}:
     get:
-      description: Get ranked times for a specific level
+      description: '[DEPRECATED] Get ranked times for a specific level. Use /api/v1/leaderboard
+        instead.'
       parameters:
       - description: Level ID
         in: path
@@ -1899,12 +1900,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.GlobalLeaderboardResponse'
-      summary: Get Global Level Leaderboard
+      summary: (DEPRECATED) Get Global Level Leaderboard
       tags:
-      - Leaderboard
+      - Leaderboard (Legacy)
   /leaderboards/{levelId}/friends:
     get:
-      description: Get friends rankings for a specific level
+      description: '[DEPRECATED] Get friends rankings for a specific level.'
       parameters:
       - description: Level ID
         in: path
@@ -1918,12 +1919,13 @@ paths:
             $ref: '#/definitions/models.LevelLeaderboardResponse'
       security:
       - BearerAuth: []
-      summary: Get Friends Level Leaderboard
+      summary: (DEPRECATED) Get Friends Level Leaderboard
       tags:
-      - Leaderboard
+      - Leaderboard (Legacy)
   /leaderboards/{levelId}/me:
     get:
-      description: Get player's rank and surrounding players for a specific level
+      description: '[DEPRECATED] Get player''s rank and surrounding players for a
+        specific level.'
       parameters:
       - description: Level ID
         in: path
@@ -1937,9 +1939,9 @@ paths:
             $ref: '#/definitions/models.PlayerStatsResponse'
       security:
       - BearerAuth: []
-      summary: Get Player Level Rank
+      summary: (DEPRECATED) Get Player Level Rank
       tags:
-      - Leaderboard
+      - Leaderboard (Legacy)
   /levels/complete:
     post:
       consumes:

@@ -162,15 +162,16 @@ func (h *LeaderboardHandler) GetPlayerHollowWildsStats(c *fiber.Ctx) error {
 }
 
 // GetGlobalLeaderboard handles the request for level-specific global rankings
-// @Summary Get Global Level Leaderboard
-// @Description Get ranked times for a specific level
-// @Tags Leaderboard
+// @Summary (DEPRECATED) Get Global Level Leaderboard
+// @Description [DEPRECATED] Get ranked times for a specific level. Use /api/v1/leaderboard instead.
+// @Tags Leaderboard (Legacy)
 // @Param levelId path string true "Level ID"
 // @Param page query int false "Page number" default(1)
 // @Param perPage query int false "Entries per page" default(10)
 // @Success 200 {object} models.GlobalLeaderboardResponse
 // @Router /leaderboards/{levelId} [get]
 func (h *LeaderboardHandler) GetGlobalLeaderboard(c *fiber.Ctx) error {
+	log.Printf("[DEPRECATION WARNING] Legacy GetGlobalLeaderboard called for level: %s", c.Params("levelId"))
 	levelID := c.Params("levelId")
 	page := c.QueryInt("page", 1)
 	perPage := c.QueryInt("perPage", 10)
@@ -190,14 +191,15 @@ func (h *LeaderboardHandler) GetGlobalLeaderboard(c *fiber.Ctx) error {
 }
 
 // GetPlayerRank handles the request for player's rank on a specific level
-// @Summary Get Player Level Rank
-// @Description Get player's rank and surrounding players for a specific level
-// @Tags Leaderboard
+// @Summary (DEPRECATED) Get Player Level Rank
+// @Description [DEPRECATED] Get player's rank and surrounding players for a specific level.
+// @Tags Leaderboard (Legacy)
 // @Security BearerAuth
 // @Param levelId path string true "Level ID"
 // @Success 200 {object} models.PlayerStatsResponse
 // @Router /leaderboards/{levelId}/me [get]
 func (h *LeaderboardHandler) GetPlayerRank(c *fiber.Ctx) error {
+	log.Printf("[DEPRECATION WARNING] Legacy GetPlayerRank called for level: %s", c.Params("levelId"))
 	userIDStr, ok := c.Locals("userId").(string)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
@@ -226,14 +228,15 @@ func (h *LeaderboardHandler) GetPlayerRank(c *fiber.Ctx) error {
 }
 
 // GetFriendsLeaderboard handles the request for friends rankings on a specific level
-// @Summary Get Friends Level Leaderboard
-// @Description Get friends rankings for a specific level
-// @Tags Leaderboard
+// @Summary (DEPRECATED) Get Friends Level Leaderboard
+// @Description [DEPRECATED] Get friends rankings for a specific level.
+// @Tags Leaderboard (Legacy)
 // @Security BearerAuth
 // @Param levelId path string true "Level ID"
 // @Success 200 {object} models.LevelLeaderboardResponse
 // @Router /leaderboards/{levelId}/friends [get]
 func (h *LeaderboardHandler) GetFriendsLeaderboard(c *fiber.Ctx) error {
+	log.Printf("[DEPRECATION WARNING] Legacy GetFriendsLeaderboard called for level: %s", c.Params("levelId"))
 	userIDStr, ok := c.Locals("userId").(string)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{

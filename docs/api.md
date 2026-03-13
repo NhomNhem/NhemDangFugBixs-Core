@@ -145,23 +145,23 @@ Get Hollow Wilds ranked entries.
 - `limit`: Number of entries. Default: 100.
 - `offset`: Offset for pagination. Default: 0.
 
-**GET /api/v1/leaderboards/{levelId}**
+**GET /api/v1/leaderboards/{levelId}** (DEPRECATED)
 
-Get global rankings for a specific level.
+[DEPRECATED] Get ranked times for a specific level. Use `/api/v1/leaderboard` for new features.
 
 **Query Parameters:**
 - `page`: Page number. Default: 1.
 - `perPage`: Entries per page. Default: 10.
 
-**GET /api/v1/leaderboards/{levelId}/me**
+**GET /api/v1/leaderboards/{levelId}/me** (DEPRECATED)
 
-Get authenticated player's rank and surrounding players for a level.
+[DEPRECATED] Get authenticated player's rank and surrounding players for a level.
 
 **Authentication:** Required
 
-**GET /api/v1/leaderboards/{levelId}/friends**
+**GET /api/v1/leaderboards/{levelId}/friends** (DEPRECATED)
 
-Get friends rankings for a specific level.
+[DEPRECATED] Get friends rankings for a specific level.
 
 **Authentication:** Required
 
