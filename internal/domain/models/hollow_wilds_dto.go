@@ -2,7 +2,7 @@ package models
 
 // HollowWildsLoginRequest represents the login request for Hollow Wilds
 type HollowWildsLoginRequest struct {
-	PlayfabSessionTicket string `json:"playfab_session_ticket" validate:"required"`
+	PlayfabSessionTicket string `json:"playfab_session_ticket" validate:"required,min=1"`
 }
 
 // HollowWildsAuthResponse represents the authentication response with refresh token

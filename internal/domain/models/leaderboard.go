@@ -79,11 +79,11 @@ type HollowWildsLeaderboardResponse struct {
 
 // LeaderboardSubmitRequest represents a request to submit a leaderboard entry
 type LeaderboardSubmitRequest struct {
-	Type        string                 `json:"type" validate:"required"`
-	Value       int64                  `json:"value" validate:"required"`
-	Character   string                 `json:"character" validate:"required"`
+	Type        string                 `json:"type" validate:"required,oneof=longest_run_days sebilah_soul_level bosses_killed"`
+	Value       int64                  `json:"value" validate:"required,min=0"`
+	Character   string                 `json:"character" validate:"required,oneof=RIMBA DARA BAYU SARI"`
 	WorldSeed   int64                  `json:"world_seed"`
-	CombatBuild string                 `json:"combat_build"`
+	CombatBuild string                 `json:"combat_build" validate:"omitempty,oneof=balanced berserker shade_walker"`
 	RunMetadata map[string]interface{} `json:"run_metadata"`
 }
 

@@ -9,6 +9,7 @@ import (
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/repository"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/usecase"
+	"github.com/NhomNhem/HollowWilds-Backend/pkg/utils"
 	"github.com/google/uuid"
 )
 
@@ -46,7 +47,7 @@ func (u *playerUsecase) GetSave(ctx context.Context, playerID uuid.UUID) (*model
 	}
 
 	if save != nil {
-		// 3. Cache the result
+		// 3. Cache the result (5 min TTL as per policy)
 		if saveDataStr, err := json.Marshal(save); err == nil {
 			u.cacheRepo.Set(ctx, cacheKey, string(saveDataStr), 5*time.Minute)
 		}
@@ -56,6 +57,11 @@ func (u *playerUsecase) GetSave(ctx context.Context, playerID uuid.UUID) (*model
 }
 
 func (u *playerUsecase) SaveGame(ctx context.Context, playerID uuid.UUID, saveData models.GameSaveData, expectedVersion int) (*models.PlayerSave, error) {
+	// 0. Defensive Validation
+	if err := utils.Validate.Struct(saveData); err != nil {
+		return nil, fmt.Errorf("validation failed: %w", err)
+	}
+
 	// 1. Get current version for conflict check
 	currentSave, err := u.saveRepo.GetByPlayerID(ctx, playerID)
 	if err != nil {

@@ -21,7 +21,9 @@ const (
 	ErrCodeUserBanned        = "USER_BANNED"
 	ErrCodeInsufficientFunds = "INSUFFICIENT_FUNDS"
 	ErrCodeInvalidLevel      = "INVALID_LEVEL"
-	ErrCodeCheatingDetected  = "CHEATING_DETECTED"
-	ErrCodeRateLimitExceeded = "RATE_LIMIT_EXCEEDED"
-	ErrCodeInternalError     = "INTERNAL_ERROR"
-)
+	ErrCodeCheatingDetected   = "CHEATING_DETECTED"
+	ErrCodeRateLimitExceeded  = "RATE_LIMIT_EXCEEDED"
+	ErrCodeValidationError    = "VALIDATION_ERROR"
+	ErrCodeInternalError      = "INTERNAL_ERROR"
+	)
+

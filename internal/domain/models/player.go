@@ -53,12 +53,12 @@ type WorldData struct {
 
 // PlayerState represents player character state
 type PlayerState struct {
-	Character string   `json:"character"` // RIMBA, DARA, BAYU, SARI
+	Character string   `json:"character" validate:"required,oneof=RIMBA DARA BAYU SARI"` // RIMBA, DARA, BAYU, SARI
 	Position  Vector2D `json:"position"`
-	Health    float64  `json:"health"`
-	Hunger    float64  `json:"hunger"`
-	Sanity    float64  `json:"sanity"`
-	Warmth    float64  `json:"warmth"`
+	Health    float64  `json:"health" validate:"min=0,max=100"`
+	Hunger    float64  `json:"hunger" validate:"min=0,max=100"`
+	Sanity    float64  `json:"sanity" validate:"min=0,max=100"`
+	Warmth    float64  `json:"warmth" validate:"min=0,max=100"`
 }
 
 // Vector2D represents a 2D position
