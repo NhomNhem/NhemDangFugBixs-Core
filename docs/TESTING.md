@@ -52,3 +52,35 @@ Before every commit, it is recommended to run the build verification script to e
 ```powershell
 ./scripts/verify_build.ps1
 ```
+
+## Deployment Verification (Production)
+
+Use the standardized verification script for both CI/CD and manual deployment checks.
+
+### Pre-deploy checks (Docker + runtime config)
+
+```bash
+go run ./scripts/verify_deploy -mode predeploy -app gamefeel-backend
+```
+
+This validates:
+- `fly.toml` runtime port (`internal_port = 8080`)
+- Docker image build success
+- Required Fly.io secrets for production runtime
+
+### Post-deploy smoke tests (real backend)
+
+```bash
+go run ./scripts/verify_deploy -mode postdeploy -app gamefeel-backend -base-url https://gamefeel-backend.fly.dev
+```
+
+This validates:
+- Deployment completion through Fly.io status/release checks
+- `GET /health` and `GET /swagger/index.html`
+- Auth rejection for fake token (`/api/v1/auth/login`)
+- Player endpoint auth protection (`/api/v1/player/save`)
+- Leaderboard availability (`/api/v1/leaderboard`)
+
+### Release gate behavior
+
+Verification is fail-fast: any failed pre-deploy or post-deploy check returns a non-zero exit code and must block release completion.

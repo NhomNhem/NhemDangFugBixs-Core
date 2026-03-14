@@ -32,15 +32,20 @@ jobs:
       - name: Run Tests
         run: go test ./...
 
+      - name: Pre-Deploy Verification
+        run: |
+          go run ./scripts/verify_deploy -mode predeploy -app gamefeel-backend
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
       - name: Deploy to Fly.io
         run: |
           flyctl deploy --remote-only --app gamefeel-backend --wait-timeout 300
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      - name: Health Check
+      - name: Post-Deploy Verification
         run: |
-          echo "Waiting for deployment to stabilize..."
-          sleep 10
-          curl -f https://gamefeel-backend.fly.dev/health || exit 1
-          echo "✅ Deployment successful and healthy!"
+          go run ./scripts/verify_deploy -mode postdeploy -app gamefeel-backend -base-url https://gamefeel-backend.fly.dev
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

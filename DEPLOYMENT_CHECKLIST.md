@@ -82,6 +82,23 @@ fly logs
 curl https://gamefeel-backend.fly.dev/health
 ```
 
+### Standardized verification runbook (recommended)
+
+Run the same checks used by CI:
+
+```bash
+# Pre-deploy validation (Docker build + Fly config/secrets)
+go run ./scripts/verify_deploy -mode predeploy -app gamefeel-backend
+
+# Deploy
+fly deploy --remote-only --app gamefeel-backend --wait-timeout 300
+
+# Post-deploy smoke tests against production
+go run ./scripts/verify_deploy -mode postdeploy -app gamefeel-backend -base-url https://gamefeel-backend.fly.dev
+```
+
+**Release gate rule:** if any command fails, deployment is treated as failed and must be fixed or rolled back before release sign-off.
+
 **Expected response:**
 ```json
 {
