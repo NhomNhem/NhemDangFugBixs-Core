@@ -63,6 +63,7 @@ type HollowWildsLeaderboardEntry struct {
 	Rank        int                    `json:"rank"`
 	PlayerID    string                 `json:"player_id"`
 	DisplayName string                 `json:"display_name"`
+	Type        string                 `json:"type"`
 	Value       int64                  `json:"value"`
 	Character   string                 `json:"character"`
 	WorldSeed   int64                  `json:"world_seed"`

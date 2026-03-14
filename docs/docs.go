@@ -2466,6 +2466,9 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "trace_id": {
+                    "type": "string"
                 }
             }
         },
@@ -2820,6 +2823,9 @@ const docTemplate = `{
                 "run_metadata": {
                     "type": "object",
                     "additionalProperties": true
+                },
+                "type": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"

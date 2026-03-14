@@ -24,24 +24,34 @@ func (_m *MockTalentUsecase) EXPECT() *MockTalentUsecase_Expecter {
 	return &MockTalentUsecase_Expecter{mock: &_m.Mock}
 }
 
-// GetTalentConfigs provides a mock function with no fields
-func (_m *MockTalentUsecase) GetTalentConfigs() map[string]*models.TalentConfig {
-	ret := _m.Called()
+// GetTalentConfigs provides a mock function with given fields: ctx
+func (_m *MockTalentUsecase) GetTalentConfigs(ctx context.Context) (map[string]*models.TalentConfig, error) {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTalentConfigs")
 	}
 
 	var r0 map[string]*models.TalentConfig
-	if rf, ok := ret.Get(0).(func() map[string]*models.TalentConfig); ok {
-		r0 = rf()
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (map[string]*models.TalentConfig, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) map[string]*models.TalentConfig); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(map[string]*models.TalentConfig)
 		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockTalentUsecase_GetTalentConfigs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTalentConfigs'
@@ -50,23 +60,24 @@ type MockTalentUsecase_GetTalentConfigs_Call struct {
 }
 
 // GetTalentConfigs is a helper method to define mock.On call
-func (_e *MockTalentUsecase_Expecter) GetTalentConfigs() *MockTalentUsecase_GetTalentConfigs_Call {
-	return &MockTalentUsecase_GetTalentConfigs_Call{Call: _e.mock.On("GetTalentConfigs")}
+//   - ctx context.Context
+func (_e *MockTalentUsecase_Expecter) GetTalentConfigs(ctx interface{}) *MockTalentUsecase_GetTalentConfigs_Call {
+	return &MockTalentUsecase_GetTalentConfigs_Call{Call: _e.mock.On("GetTalentConfigs", ctx)}
 }
 
-func (_c *MockTalentUsecase_GetTalentConfigs_Call) Run(run func()) *MockTalentUsecase_GetTalentConfigs_Call {
+func (_c *MockTalentUsecase_GetTalentConfigs_Call) Run(run func(ctx context.Context)) *MockTalentUsecase_GetTalentConfigs_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(context.Context))
 	})
 	return _c
 }
 
-func (_c *MockTalentUsecase_GetTalentConfigs_Call) Return(_a0 map[string]*models.TalentConfig) *MockTalentUsecase_GetTalentConfigs_Call {
-	_c.Call.Return(_a0)
+func (_c *MockTalentUsecase_GetTalentConfigs_Call) Return(_a0 map[string]*models.TalentConfig, _a1 error) *MockTalentUsecase_GetTalentConfigs_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockTalentUsecase_GetTalentConfigs_Call) RunAndReturn(run func() map[string]*models.TalentConfig) *MockTalentUsecase_GetTalentConfigs_Call {
+func (_c *MockTalentUsecase_GetTalentConfigs_Call) RunAndReturn(run func(context.Context) (map[string]*models.TalentConfig, error)) *MockTalentUsecase_GetTalentConfigs_Call {
 	_c.Call.Return(run)
 	return _c
 }

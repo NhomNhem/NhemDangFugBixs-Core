@@ -45,25 +45,13 @@ func NewHollowWildsHandler(
 func (h *HollowWildsHandler) Login(c *fiber.Ctx) error {
 	var req models.HollowWildsLoginRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInvalidRequest,
-				Message: "Invalid request body",
-			},
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	overrideID := c.Get("X-PlayFab-ID")
 	resp, err := h.authUsecase.Login(c.Context(), req.PlayfabSessionTicket, overrideID)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeUnauthorized,
-				Message: err.Error(),
-			},
-		})
+		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
 	return c.JSON(resp)
@@ -82,24 +70,12 @@ func (h *HollowWildsHandler) Login(c *fiber.Ctx) error {
 func (h *HollowWildsHandler) Refresh(c *fiber.Ctx) error {
 	var req models.RefreshTokenRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInvalidRequest,
-				Message: "Invalid request body",
-			},
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	resp, err := h.authUsecase.RefreshToken(c.Context(), req.RefreshToken)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeUnauthorized,
-				Message: err.Error(),
-			},
-		})
+		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
 	return c.JSON(resp)
@@ -144,23 +120,11 @@ func (h *HollowWildsHandler) GetSave(c *fiber.Ctx) error {
 
 	save, err := h.playerUsecase.GetSave(c.Context(), playerID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: "Failed to retrieve save data",
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve save data")
 	}
 
 	if save == nil {
-		return c.Status(fiber.StatusNotFound).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    "save_not_found",
-				Message: "No save data found for this player",
-			},
-		})
+		return fiber.NewError(fiber.StatusNotFound, "No save data found for this player")
 	}
 
 	return c.JSON(models.LoadGameResponse{
@@ -193,24 +157,12 @@ func (h *HollowWildsHandler) UpdateSave(c *fiber.Ctx) error {
 	playerIDStr := fmt.Sprintf("%v", c.Locals("userId"))
 	playerID, err := uuid.Parse(playerIDStr)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: "Internal server error: auth context invalid",
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "Internal server error: auth context invalid")
 	}
 
 	var req models.SaveGameRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInvalidRequest,
-				Message: "Invalid request body",
-			},
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	expectedVersion := c.QueryInt("version", 0)
@@ -225,16 +177,10 @@ func (h *HollowWildsHandler) UpdateSave(c *fiber.Ctx) error {
 	}, expectedVersion)
 
 	if err != nil {
-		if conflict, ok := err.(*models.VersionConflictError); ok {
-			return c.Status(fiber.StatusConflict).JSON(conflict)
+		if _, ok := err.(*models.VersionConflictError); ok {
+			return err // Return the actual error object for ErrorHandler to handle
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: err.Error(),
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(models.SaveGameResponse{
@@ -258,13 +204,7 @@ func (h *HollowWildsHandler) CreateBackup(c *fiber.Ctx) error {
 
 	backup, err := h.playerUsecase.CreateBackup(c.Context(), playerID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: err.Error(),
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(models.BackupResponse{
@@ -288,13 +228,7 @@ func (h *HollowWildsHandler) GetBackups(c *fiber.Ctx) error {
 
 	backups, err := h.playerUsecase.GetBackups(c.Context(), playerID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: "Failed to retrieve backups",
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve backups")
 	}
 
 	var backupInfos []models.BackupInfo
@@ -328,44 +262,20 @@ func (h *HollowWildsHandler) RestoreFromBackup(c *fiber.Ctx) error {
 
 	var req models.RestoreRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInvalidRequest,
-				Message: "Invalid request body",
-			},
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	backupID, err := uuid.Parse(req.BackupID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInvalidRequest,
-				Message: "Invalid backup ID format",
-			},
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid backup ID format")
 	}
 
 	save, err := h.playerUsecase.RestoreFromBackup(c.Context(), playerID, backupID)
 	if err != nil {
 		if err.Error() == "backup not found" {
-			return c.Status(fiber.StatusNotFound).JSON(models.APIResponse{
-				Success: false,
-				Error: &models.APIError{
-					Code:    "backup_not_found",
-					Message: "Backup not found or does not belong to this player",
-				},
-			})
+			return fiber.NewError(fiber.StatusNotFound, "Backup not found or does not belong to this player")
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: err.Error(),
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(models.SaveGameResponse{
@@ -388,13 +298,7 @@ func (h *HollowWildsHandler) RestoreFromBackup(c *fiber.Ctx) error {
 func (h *HollowWildsHandler) TrackEvents(c *fiber.Ctx) error {
 	var req models.AnalyticsEventsRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInvalidRequest,
-				Message: "Invalid request body",
-			},
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	var playerID *uuid.UUID
@@ -406,6 +310,7 @@ func (h *HollowWildsHandler) TrackEvents(c *fiber.Ctx) error {
 	accepted, rejected, err := h.analyticsUsecase.TrackEvents(c.Context(), playerID, req.Events)
 	if err != nil {
 		log.Printf("Analytics error: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to track events")
 	}
 
 	return c.JSON(models.AnalyticsEventsResponse{

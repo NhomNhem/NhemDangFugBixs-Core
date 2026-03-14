@@ -79,6 +79,14 @@ air
 go test ./...
 ```
 
+### Build Verification
+To ensure everything is correct before committing, run the build verification script:
+```powershell
+./scripts/verify_build.ps1
+```
+
+For detailed testing documentation, see [docs/TESTING.md](docs/TESTING.md).
+
 ### Build for production
 ```bash
 go build -o bin/server cmd/server/main.go

@@ -11,6 +11,7 @@ type APIResponse struct {
 type APIError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
+	TraceID string `json:"trace_id,omitempty"`
 }
 
 // Common error codes
@@ -21,9 +22,8 @@ const (
 	ErrCodeUserBanned        = "USER_BANNED"
 	ErrCodeInsufficientFunds = "INSUFFICIENT_FUNDS"
 	ErrCodeInvalidLevel      = "INVALID_LEVEL"
-	ErrCodeCheatingDetected   = "CHEATING_DETECTED"
-	ErrCodeRateLimitExceeded  = "RATE_LIMIT_EXCEEDED"
-	ErrCodeValidationError    = "VALIDATION_ERROR"
-	ErrCodeInternalError      = "INTERNAL_ERROR"
-	)
-
+	ErrCodeCheatingDetected  = "CHEATING_DETECTED"
+	ErrCodeRateLimitExceeded = "RATE_LIMIT_EXCEEDED"
+	ErrCodeValidationError   = "VALIDATION_ERROR"
+	ErrCodeInternalError     = "INTERNAL_ERROR"
+)

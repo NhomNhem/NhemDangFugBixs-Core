@@ -2,7 +2,10 @@ package persistence
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"sync"
+	"time"
 
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/repository"
@@ -12,27 +15,67 @@ import (
 )
 
 type postgresLevelRepository struct {
-	db *pgxpool.Pool
+	db         *pgxpool.Pool
+	cache      map[string]*models.LevelConfig
+	cacheMutex sync.RWMutex
+	lastFetch  time.Time
 }
 
 // NewPostgresLevelRepository creates a new PostgreSQL level repository
 func NewPostgresLevelRepository(db *pgxpool.Pool) repository.LevelRepository {
-	return &postgresLevelRepository{db: db}
+	return &postgresLevelRepository{
+		db:    db,
+		cache: make(map[string]*models.LevelConfig),
+	}
 }
 
-func (r *postgresLevelRepository) GetConfig(levelID string, mapID string) (*models.LevelConfig, error) {
-	// TODO: Move to database, for now keep the logic from LevelService
-	return &models.LevelConfig{
-		LevelID:        levelID,
-		MapID:          mapID,
-		MinTimeSeconds: 10.0,
-		BaseGold:       60,
-		Objectives: []models.LevelObjective{
-			{Type: "completion", Threshold: 1, Operator: "gte"},
-			{Type: "health", Threshold: 50, Operator: "gte"},
-			{Type: "time", Threshold: 60, Operator: "lte"},
-		},
-	}, nil
+func (r *postgresLevelRepository) GetConfig(ctx context.Context, levelID string, mapID string) (*models.LevelConfig, error) {
+	r.cacheMutex.RLock()
+	if config, ok := r.cache[levelID]; ok && time.Since(r.lastFetch) < 5*time.Minute {
+		r.cacheMutex.RUnlock()
+		return config, nil
+	}
+	r.cacheMutex.RUnlock()
+
+	if r.db == nil {
+		return &models.LevelConfig{
+			LevelID:        levelID,
+			MapID:          mapID,
+			MinTimeSeconds: 10.0,
+			BaseGold:       60,
+			Objectives: []models.LevelObjective{
+				{Type: "completion", Threshold: 1, Operator: "gte"},
+				{Type: "health", Threshold: 50, Operator: "gte"},
+				{Type: "time", Threshold: 60, Operator: "lte"},
+			},
+		}, nil
+	}
+
+	var config models.LevelConfig
+	var configJSON []byte
+	err := r.db.QueryRow(ctx, `
+		SELECT level_id, map_id, config_json
+		FROM level_configs
+		WHERE level_id = $1
+	`, levelID).Scan(&config.LevelID, &config.MapID, &configJSON)
+
+	if err == pgx.ErrNoRows {
+		return nil, fmt.Errorf("level config not found: %s", levelID)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get level config: %w", err)
+	}
+
+	if err := json.Unmarshal(configJSON, &config); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal level config: %w", err)
+	}
+
+	r.cacheMutex.Lock()
+	r.cache[levelID] = &config
+	r.lastFetch = time.Now()
+	r.cacheMutex.Unlock()
+
+	return &config, nil
 }
 
 func (r *postgresLevelRepository) GetCompletion(ctx context.Context, userID uuid.UUID, levelID string) (*models.LevelCompletion, error) {

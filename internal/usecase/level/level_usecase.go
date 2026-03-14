@@ -27,7 +27,7 @@ func NewLevelUsecase(levelRepo repository.LevelRepository, lbUsecase usecase.Lea
 
 func (u *levelUsecase) CompleteLevel(ctx context.Context, userID uuid.UUID, req *models.LevelCompletionRequest) (*models.LevelCompletionResponse, error) {
 	// 1. Get level configuration
-	config, err := u.levelRepo.GetConfig(req.LevelID, req.MapID)
+	config, err := u.levelRepo.GetConfig(ctx, req.LevelID, req.MapID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get level config: %w", err)
 	}

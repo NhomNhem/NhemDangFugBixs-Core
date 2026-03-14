@@ -9,7 +9,7 @@ import (
 
 // TalentRepository defines the interface for talent-related data access
 type TalentRepository interface {
-	GetConfigs() map[string]*models.TalentConfig
+	GetConfigs(ctx context.Context) (map[string]*models.TalentConfig, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]models.UserTalent, error)
 	GetOrCreate(ctx context.Context, userID uuid.UUID, talentID string) (*models.UserTalent, error)
 	UpdateLevel(ctx context.Context, id uuid.UUID, newLevel int) error

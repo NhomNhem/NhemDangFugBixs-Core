@@ -520,20 +520,27 @@ Protected routes (JWT required):
 
 ## Error Response Format
 
+All API errors follow a standardized JSON format:
+
 ```json
 {
-  "error": "snake_case_error_code",
-  "message": "Human readable message",
-  "trace_id": "req_abc123"
+  "success": false,
+  "error": {
+    "code": "snake_case_error_code",
+    "message": "Human readable message",
+    "trace_id": "req_abc123"
+  }
 }
 ```
 
 **Standard error codes:**
 ```
+invalid_request       → 400 (bad request body/params)
 unauthorized          → 401 (invalid/expired JWT)
 forbidden             → 403 (valid JWT, wrong resource)
 not_found             → 404
-validation_error      → 422 (bad request body)
+conflict              → 409 (version mismatch)
+validation_error      → 422 (schema validation failed)
 rate_limited          → 429
 internal_error        → 500
 ```

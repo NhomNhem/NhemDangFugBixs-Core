@@ -42,25 +42,13 @@ func (h *LeaderboardHandler) GetHollowWildsLeaderboard(c *fiber.Ctx) error {
 	offset := c.QueryInt("offset", 0)
 
 	if scope == "per_character" && character == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInvalidRequest,
-				Message: "character is required for per_character scope",
-			},
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "character is required for per_character scope")
 	}
 
 	leaderboard, err := h.leaderboardUsecase.GetLeaderboard(c.Context(), lbType, scope, character, limit, offset)
 	if err != nil {
 		log.Printf("Failed to get Hollow Wilds leaderboard: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: "Failed to retrieve leaderboard",
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve leaderboard")
 	}
 
 	return c.JSON(leaderboard)
@@ -80,46 +68,22 @@ func (h *LeaderboardHandler) GetHollowWildsLeaderboard(c *fiber.Ctx) error {
 func (h *LeaderboardHandler) SubmitHollowWildsEntry(c *fiber.Ctx) error {
 	playerIDStr, ok := c.Locals("userId").(string)
 	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeUnauthorized,
-				Message: "User not authenticated",
-			},
-		})
+		return fiber.ErrUnauthorized
 	}
 	playerID, _ := uuid.Parse(playerIDStr)
 
 	var req models.LeaderboardSubmitRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInvalidRequest,
-				Message: "Invalid request body",
-			},
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 
 	result, err := h.leaderboardUsecase.SubmitEntry(c.Context(), playerID, req)
 	if err != nil {
 		log.Printf("Failed to submit leaderboard entry: %v", err)
 		if strings.Contains(err.Error(), "value_too_low") {
-			return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-				Success: false,
-				Error: &models.APIError{
-					Code:    "value_too_low",
-					Message: "Submitted value does not beat personal best",
-				},
-			})
+			return fiber.NewError(fiber.StatusBadRequest, "Submitted value does not beat personal best")
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: "Failed to submit entry",
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to submit entry")
 	}
 
 	return c.JSON(result)
@@ -136,26 +100,14 @@ func (h *LeaderboardHandler) SubmitHollowWildsEntry(c *fiber.Ctx) error {
 func (h *LeaderboardHandler) GetPlayerHollowWildsStats(c *fiber.Ctx) error {
 	playerIDStr, ok := c.Locals("userId").(string)
 	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeUnauthorized,
-				Message: "User not authenticated",
-			},
-		})
+		return fiber.ErrUnauthorized
 	}
 	playerID, _ := uuid.Parse(playerIDStr)
 
 	stats, err := h.leaderboardUsecase.GetPlayerStats(c.Context(), playerID)
 	if err != nil {
 		log.Printf("Failed to get player Hollow Wilds stats: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: "Failed to retrieve player stats",
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve player stats")
 	}
 
 	return c.JSON(stats)
@@ -178,13 +130,7 @@ func (h *LeaderboardHandler) GetGlobalLeaderboard(c *fiber.Ctx) error {
 
 	resp, err := h.leaderboardUsecase.GetGlobalLeaderboard(c.Context(), levelID, page, perPage)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: "Failed to retrieve global leaderboard",
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve global leaderboard")
 	}
 
 	return c.JSON(resp)
@@ -202,26 +148,14 @@ func (h *LeaderboardHandler) GetPlayerRank(c *fiber.Ctx) error {
 	log.Printf("[DEPRECATION WARNING] Legacy GetPlayerRank called for level: %s", c.Params("levelId"))
 	userIDStr, ok := c.Locals("userId").(string)
 	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeUnauthorized,
-				Message: "User not authenticated",
-			},
-		})
+		return fiber.ErrUnauthorized
 	}
 	userID, _ := uuid.Parse(userIDStr)
 	levelID := c.Params("levelId")
 
 	resp, err := h.leaderboardUsecase.GetPlayerRank(c.Context(), userID, levelID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: "Failed to retrieve player rank",
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve player rank")
 	}
 
 	return c.JSON(resp)
@@ -239,26 +173,14 @@ func (h *LeaderboardHandler) GetFriendsLeaderboard(c *fiber.Ctx) error {
 	log.Printf("[DEPRECATION WARNING] Legacy GetFriendsLeaderboard called for level: %s", c.Params("levelId"))
 	userIDStr, ok := c.Locals("userId").(string)
 	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeUnauthorized,
-				Message: "User not authenticated",
-			},
-		})
+		return fiber.ErrUnauthorized
 	}
 	userID, _ := uuid.Parse(userIDStr)
 	levelID := c.Params("levelId")
 
 	resp, err := h.leaderboardUsecase.GetFriendsLeaderboard(c.Context(), userID, levelID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Success: false,
-			Error: &models.APIError{
-				Code:    models.ErrCodeInternalError,
-				Message: "Failed to retrieve friends leaderboard",
-			},
-		})
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to retrieve friends leaderboard")
 	}
 
 	return c.JSON(resp)

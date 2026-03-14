@@ -2,7 +2,10 @@ package persistence
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"sync"
+	"time"
 
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/repository"
@@ -12,73 +15,86 @@ import (
 )
 
 type postgresTalentRepository struct {
-	db *pgxpool.Pool
+	db         *pgxpool.Pool
+	cache      map[string]*models.TalentConfig
+	cacheMutex sync.RWMutex
+	lastFetch  time.Time
 }
 
 // NewPostgresTalentRepository creates a new PostgreSQL talent repository
 func NewPostgresTalentRepository(db *pgxpool.Pool) repository.TalentRepository {
-	return &postgresTalentRepository{db: db}
+	return &postgresTalentRepository{
+		db:    db,
+		cache: make(map[string]*models.TalentConfig),
+	}
 }
 
-func (r *postgresTalentRepository) GetConfigs() map[string]*models.TalentConfig {
-	// TODO: Move to database, for now keep the logic from TalentService
-	return map[string]*models.TalentConfig{
-		models.TalentHealth: {
-			ID:            models.TalentHealth,
-			Name:          "Health",
-			Description:   "Increases max HP",
-			MaxLevel:      20,
-			BaseCost:      500,
-			CostScaling:   1.15,
-			BonusPerLevel: 5.0,
-			StatType:      "hp",
-			UnlockMap:     1,
-		},
-		models.TalentDamage: {
-			ID:            models.TalentDamage,
-			Name:          "Damage",
-			Description:   "Increases attack power",
-			MaxLevel:      20,
-			BaseCost:      500,
-			CostScaling:   1.15,
-			BonusPerLevel: 3.0,
-			StatType:      "damage",
-			UnlockMap:     1,
-		},
-		models.TalentArmor: {
-			ID:            models.TalentArmor,
-			Name:          "Armor",
-			Description:   "Reduces damage taken",
-			MaxLevel:      20,
-			BaseCost:      500,
-			CostScaling:   1.15,
-			BonusPerLevel: 2.0,
-			StatType:      "armor",
-			UnlockMap:     1,
-		},
-		models.TalentSpeed: {
-			ID:            models.TalentSpeed,
-			Name:          "Speed",
-			Description:   "Increases movement speed",
-			MaxLevel:      20,
-			BaseCost:      500,
-			CostScaling:   1.15,
-			BonusPerLevel: 2.0,
-			StatType:      "speed",
-			UnlockMap:     1,
-		},
-		models.TalentDashCooldown: {
-			ID:            models.TalentDashCooldown,
-			Name:          "Dash Cooldown",
-			Description:   "Reduces dash cooldown",
-			MaxLevel:      10,
-			BaseCost:      1000,
-			CostScaling:   1.2,
-			BonusPerLevel: 5.0,
-			StatType:      "dash_cdr",
-			UnlockMap:     2,
-		},
+func (r *postgresTalentRepository) GetConfigs(ctx context.Context) (map[string]*models.TalentConfig, error) {
+	r.cacheMutex.RLock()
+	if len(r.cache) > 0 && time.Since(r.lastFetch) < 5*time.Minute {
+		r.cacheMutex.RUnlock()
+		return r.cache, nil
 	}
+	r.cacheMutex.RUnlock()
+
+	if r.db == nil {
+		return map[string]*models.TalentConfig{
+			models.TalentHealth: {
+				ID:            models.TalentHealth,
+				Name:          "Health",
+				Description:   "Increases max HP",
+				MaxLevel:      20,
+				BaseCost:      500,
+				CostScaling:   1.15,
+				BonusPerLevel: 5.0,
+				StatType:      "hp",
+				UnlockMap:     1,
+			},
+			models.TalentDamage: {
+				ID:            models.TalentDamage,
+				Name:          "Damage",
+				Description:   "Increases attack power",
+				MaxLevel:      20,
+				BaseCost:      500,
+				CostScaling:   1.15,
+				BonusPerLevel: 3.0,
+				StatType:      "damage",
+				UnlockMap:     1,
+			},
+		}, nil
+	}
+
+	rows, err := r.db.Query(ctx, `
+		SELECT talent_id, config_json
+		FROM talent_configs
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query talent configs: %w", err)
+	}
+	defer rows.Close()
+
+	newConfigs := make(map[string]*models.TalentConfig)
+	for rows.Next() {
+		var talentID string
+		var configJSON []byte
+		if err := rows.Scan(&talentID, &configJSON); err != nil {
+			return nil, fmt.Errorf("failed to scan talent config: %w", err)
+		}
+
+		var config models.TalentConfig
+		if err := json.Unmarshal(configJSON, &config); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal talent config: %w", err)
+		}
+		config.ID = talentID
+		newConfigs[talentID] = &config
+	}
+
+	r.cacheMutex.Lock()
+	r.cache = newConfigs
+	r.lastFetch = time.Now()
+	r.cacheMutex.Unlock()
+
+	return newConfigs, nil
 }
 
 func (r *postgresTalentRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]models.UserTalent, error) {

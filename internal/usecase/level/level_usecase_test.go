@@ -42,7 +42,7 @@ func TestLevelUsecase_CompleteLevel(t *testing.T) {
 	}
 
 	t.Run("successful first completion", func(t *testing.T) {
-		levelRepo.On("GetConfig", req.LevelID, req.MapID).Return(config, nil).Once()
+		levelRepo.On("GetConfig", ctx, req.LevelID, req.MapID).Return(config, nil).Once()
 		levelRepo.On("GetCompletion", ctx, userID, req.LevelID).Return(nil, nil).Once()
 		levelRepo.On("CreateCompletion", ctx, mock.AnythingOfType("*models.LevelCompletion")).Return(nil).Once()
 
@@ -69,7 +69,7 @@ func TestLevelUsecase_CompleteLevel(t *testing.T) {
 		reqTooFast := *req
 		reqTooFast.TimeSeconds = 5.0 // Below config.MinTimeSeconds (10.0)
 
-		levelRepo.On("GetConfig", req.LevelID, req.MapID).Return(config, nil).Once()
+		levelRepo.On("GetConfig", ctx, req.LevelID, req.MapID).Return(config, nil).Once()
 
 		resp, err := usecase.CompleteLevel(ctx, userID, &reqTooFast)
 

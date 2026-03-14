@@ -30,7 +30,7 @@ func TestTalentUsecase_UpgradeTalent(t *testing.T) {
 	}
 
 	t.Run("successful upgrade from level 0 to 1", func(t *testing.T) {
-		talentRepo.On("GetConfigs").Return(configs).Once() // For the test check if needed, but actually the usecase calls it once inside UpgradeTalent. Let's re-read usecase.
+		talentRepo.On("GetConfigs", ctx).Return(configs, nil).Once() // For the test check if needed, but actually the usecase calls it once inside UpgradeTalent. Let's re-read usecase.
 
 		userTalent := &models.UserTalent{
 			ID:           uuid.New(),
@@ -57,7 +57,7 @@ func TestTalentUsecase_UpgradeTalent(t *testing.T) {
 	})
 
 	t.Run("failed upgrade - already at max level", func(t *testing.T) {
-		talentRepo.On("GetConfigs").Return(configs).Once()
+		talentRepo.On("GetConfigs", ctx).Return(configs, nil).Once()
 
 		userTalent := &models.UserTalent{
 			ID:           uuid.New(),

@@ -22,8 +22,8 @@ func NewTalentUsecase(talentRepo repository.TalentRepository) usecase.TalentUsec
 	}
 }
 
-func (u *talentUsecase) GetTalentConfigs() map[string]*models.TalentConfig {
-	return u.talentRepo.GetConfigs()
+func (u *talentUsecase) GetTalentConfigs(ctx context.Context) (map[string]*models.TalentConfig, error) {
+	return u.talentRepo.GetConfigs(ctx)
 }
 
 func (u *talentUsecase) GetUserTalents(ctx context.Context, userID uuid.UUID) ([]models.UserTalent, error) {
@@ -32,7 +32,10 @@ func (u *talentUsecase) GetUserTalents(ctx context.Context, userID uuid.UUID) ([
 
 func (u *talentUsecase) UpgradeTalent(ctx context.Context, userID uuid.UUID, talentID string) (*models.TalentUpgradeResponse, error) {
 	// 1. Get talent config
-	configs := u.talentRepo.GetConfigs()
+	configs, err := u.talentRepo.GetConfigs(ctx)
+	if err != nil {
+		return nil, err
+	}
 	config, ok := configs[talentID]
 	if !ok {
 		return nil, fmt.Errorf("invalid talent ID: %s", talentID)

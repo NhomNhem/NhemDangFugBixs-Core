@@ -14,12 +14,14 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/storage/redis/v3"
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
 
 	_ "github.com/NhomNhem/HollowWilds-Backend/docs"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/database"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/delivery/http"
+	"github.com/NhomNhem/HollowWilds-Backend/internal/domain/models"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/infrastructure/cache"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/infrastructure/identity"
 	"github.com/NhomNhem/HollowWilds-Backend/internal/infrastructure/persistence"
@@ -110,6 +112,14 @@ func main() {
 	}
 	defer utils.CloseRedis()
 
+	// Create Redis storage for Fiber middleware
+	var fiberRedisStorage fiber.Storage
+	if utils.RedisClient != nil {
+		fiberRedisStorage = redis.New(redis.Config{
+			URL: os.Getenv("UPSTASH_REDIS_URL"),
+		})
+	}
+
 	// Run automated database migrations (only if connected)
 	if database.Pool != nil {
 		if err := database.RunMigrations(); err != nil {
@@ -126,11 +136,15 @@ func main() {
 			if e, ok := err.(*fiber.Error); ok {
 				code = e.Code
 			}
-			return c.Status(code).JSON(fiber.Map{
-				"success": false,
-				"error": fiber.Map{
-					"code":    code,
-					"message": err.Error(),
+
+			requestID, _ := c.Locals("requestId").(string)
+
+			return c.Status(code).JSON(models.APIResponse{
+				Success: false,
+				Error: &models.APIError{
+					Code:    getSnakeCaseErrorCode(code),
+					Message: err.Error(),
+					TraceID: requestID,
 				},
 			})
 		},
@@ -148,6 +162,7 @@ func main() {
 
 	// Global rate limiter (basic protection)
 	app.Use(limiter.New(limiter.Config{
+		Storage:    fiberRedisStorage,
 		Max:        getEnvInt("RATE_LIMIT_REQUESTS", 100),
 		Expiration: getEnvDuration("RATE_LIMIT_DURATION", 60*time.Second),
 		KeyGenerator: func(c *fiber.Ctx) string {
@@ -280,6 +295,7 @@ func main() {
 	// Analytics routes
 	analytics := apiV1.Group("/analytics")
 	analytics.Post("/events", limiter.New(limiter.Config{
+		Storage:    fiberRedisStorage,
 		Max:        100,
 		Expiration: 60 * time.Second,
 		KeyGenerator: func(c *fiber.Ctx) string {
@@ -365,4 +381,29 @@ func getEnvDuration(key string, defaultValue time.Duration) time.Duration {
 		}
 	}
 	return defaultValue
+}
+
+func getSnakeCaseErrorCode(code int) string {
+	switch code {
+	case fiber.StatusBadRequest:
+		return "invalid_request"
+	case fiber.StatusUnauthorized:
+		return "unauthorized"
+	case fiber.StatusForbidden:
+		return "forbidden"
+	case fiber.StatusNotFound:
+		return "not_found"
+	case fiber.StatusMethodNotAllowed:
+		return "method_not_allowed"
+	case fiber.StatusConflict:
+		return "conflict"
+	case fiber.StatusUnprocessableEntity:
+		return "validation_error"
+	case fiber.StatusTooManyRequests:
+		return "rate_limited"
+	case fiber.StatusInternalServerError:
+		return "internal_error"
+	default:
+		return "error"
+	}
 }

@@ -83,24 +83,34 @@ func (_c *MockTalentRepository_GetByUserID_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// GetConfigs provides a mock function with no fields
-func (_m *MockTalentRepository) GetConfigs() map[string]*models.TalentConfig {
-	ret := _m.Called()
+// GetConfigs provides a mock function with given fields: ctx
+func (_m *MockTalentRepository) GetConfigs(ctx context.Context) (map[string]*models.TalentConfig, error) {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetConfigs")
 	}
 
 	var r0 map[string]*models.TalentConfig
-	if rf, ok := ret.Get(0).(func() map[string]*models.TalentConfig); ok {
-		r0 = rf()
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (map[string]*models.TalentConfig, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) map[string]*models.TalentConfig); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(map[string]*models.TalentConfig)
 		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockTalentRepository_GetConfigs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetConfigs'
@@ -109,23 +119,24 @@ type MockTalentRepository_GetConfigs_Call struct {
 }
 
 // GetConfigs is a helper method to define mock.On call
-func (_e *MockTalentRepository_Expecter) GetConfigs() *MockTalentRepository_GetConfigs_Call {
-	return &MockTalentRepository_GetConfigs_Call{Call: _e.mock.On("GetConfigs")}
+//   - ctx context.Context
+func (_e *MockTalentRepository_Expecter) GetConfigs(ctx interface{}) *MockTalentRepository_GetConfigs_Call {
+	return &MockTalentRepository_GetConfigs_Call{Call: _e.mock.On("GetConfigs", ctx)}
 }
 
-func (_c *MockTalentRepository_GetConfigs_Call) Run(run func()) *MockTalentRepository_GetConfigs_Call {
+func (_c *MockTalentRepository_GetConfigs_Call) Run(run func(ctx context.Context)) *MockTalentRepository_GetConfigs_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(context.Context))
 	})
 	return _c
 }
 
-func (_c *MockTalentRepository_GetConfigs_Call) Return(_a0 map[string]*models.TalentConfig) *MockTalentRepository_GetConfigs_Call {
-	_c.Call.Return(_a0)
+func (_c *MockTalentRepository_GetConfigs_Call) Return(_a0 map[string]*models.TalentConfig, _a1 error) *MockTalentRepository_GetConfigs_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockTalentRepository_GetConfigs_Call) RunAndReturn(run func() map[string]*models.TalentConfig) *MockTalentRepository_GetConfigs_Call {
+func (_c *MockTalentRepository_GetConfigs_Call) RunAndReturn(run func(context.Context) (map[string]*models.TalentConfig, error)) *MockTalentRepository_GetConfigs_Call {
 	_c.Call.Return(run)
 	return _c
 }

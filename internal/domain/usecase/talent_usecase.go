@@ -9,7 +9,7 @@ import (
 
 // TalentUsecase defines the business logic for character talents
 type TalentUsecase interface {
-	GetTalentConfigs() map[string]*models.TalentConfig
+	GetTalentConfigs(ctx context.Context) (map[string]*models.TalentConfig, error)
 	GetUserTalents(ctx context.Context, userID uuid.UUID) ([]models.UserTalent, error)
 	UpgradeTalent(ctx context.Context, userID uuid.UUID, talentID string) (*models.TalentUpgradeResponse, error)
 }

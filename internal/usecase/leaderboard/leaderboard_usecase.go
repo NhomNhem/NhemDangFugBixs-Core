@@ -181,6 +181,7 @@ func (u *leaderboardUsecase) SubmitEntry(ctx context.Context, playerID uuid.UUID
 	// 2. Submit entry
 	entry := &models.HollowWildsLeaderboardEntry{
 		PlayerID:    playerID.String(),
+		Type:        req.Type,
 		Value:       req.Value,
 		Character:   req.Character,
 		WorldSeed:   req.WorldSeed,

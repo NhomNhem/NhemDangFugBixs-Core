@@ -131,9 +131,9 @@ func (_c *MockLevelRepository_GetCompletion_Call) RunAndReturn(run func(context.
 	return _c
 }
 
-// GetConfig provides a mock function with given fields: levelID, mapID
-func (_m *MockLevelRepository) GetConfig(levelID string, mapID string) (*models.LevelConfig, error) {
-	ret := _m.Called(levelID, mapID)
+// GetConfig provides a mock function with given fields: ctx, levelID, mapID
+func (_m *MockLevelRepository) GetConfig(ctx context.Context, levelID string, mapID string) (*models.LevelConfig, error) {
+	ret := _m.Called(ctx, levelID, mapID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetConfig")
@@ -141,19 +141,19 @@ func (_m *MockLevelRepository) GetConfig(levelID string, mapID string) (*models.
 
 	var r0 *models.LevelConfig
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string) (*models.LevelConfig, error)); ok {
-		return rf(levelID, mapID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*models.LevelConfig, error)); ok {
+		return rf(ctx, levelID, mapID)
 	}
-	if rf, ok := ret.Get(0).(func(string, string) *models.LevelConfig); ok {
-		r0 = rf(levelID, mapID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *models.LevelConfig); ok {
+		r0 = rf(ctx, levelID, mapID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.LevelConfig)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(levelID, mapID)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, levelID, mapID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -167,15 +167,16 @@ type MockLevelRepository_GetConfig_Call struct {
 }
 
 // GetConfig is a helper method to define mock.On call
+//   - ctx context.Context
 //   - levelID string
 //   - mapID string
-func (_e *MockLevelRepository_Expecter) GetConfig(levelID interface{}, mapID interface{}) *MockLevelRepository_GetConfig_Call {
-	return &MockLevelRepository_GetConfig_Call{Call: _e.mock.On("GetConfig", levelID, mapID)}
+func (_e *MockLevelRepository_Expecter) GetConfig(ctx interface{}, levelID interface{}, mapID interface{}) *MockLevelRepository_GetConfig_Call {
+	return &MockLevelRepository_GetConfig_Call{Call: _e.mock.On("GetConfig", ctx, levelID, mapID)}
 }
 
-func (_c *MockLevelRepository_GetConfig_Call) Run(run func(levelID string, mapID string)) *MockLevelRepository_GetConfig_Call {
+func (_c *MockLevelRepository_GetConfig_Call) Run(run func(ctx context.Context, levelID string, mapID string)) *MockLevelRepository_GetConfig_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
 	})
 	return _c
 }
@@ -185,7 +186,7 @@ func (_c *MockLevelRepository_GetConfig_Call) Return(_a0 *models.LevelConfig, _a
 	return _c
 }
 
-func (_c *MockLevelRepository_GetConfig_Call) RunAndReturn(run func(string, string) (*models.LevelConfig, error)) *MockLevelRepository_GetConfig_Call {
+func (_c *MockLevelRepository_GetConfig_Call) RunAndReturn(run func(context.Context, string, string) (*models.LevelConfig, error)) *MockLevelRepository_GetConfig_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -14,6 +14,30 @@ Authorization: Bearer <jwt_token>
 
 Get JWT token via `/auth/hw/login` endpoint for Hollow Wilds.
 
+## Error Response Format
+
+All API errors follow a standardized JSON format:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "snake_case_error_code",
+    "message": "Human-readable description of the error",
+    "trace_id": "req_unique_id"
+  }
+}
+```
+
+Common error codes:
+- `invalid_request`: Bad request body or parameters
+- `unauthorized`: Authentication missing or invalid
+- `forbidden`: Insufficient permissions (e.g. non-admin accessing admin routes)
+- `not_found`: Resource does not exist
+- `conflict`: Resource state conflict (e.g. save version mismatch)
+- `rate_limited`: Too many requests
+- `internal_error`: Unexpected server error
+
 ---
 
 ## Endpoints

@@ -125,7 +125,7 @@ func (r *postgresLeaderboardRepository) UpsertEntry(ctx context.Context, entry *
 		    combat_build = EXCLUDED.combat_build,
 		    run_metadata = EXCLUDED.run_metadata,
 		    updated_at = NOW()
-	`, playerUUID, "TODO_TYPE", entry.Value, entry.Character, entry.WorldSeed, entry.CombatBuild, entry.RunMetadata)
+	`, playerUUID, entry.Type, entry.Value, entry.Character, entry.WorldSeed, entry.CombatBuild, entry.RunMetadata)
 
 	return err
 }

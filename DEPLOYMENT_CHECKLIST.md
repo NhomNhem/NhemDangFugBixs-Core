@@ -85,16 +85,27 @@ curl https://gamefeel-backend.fly.dev/health
 **Expected response:**
 ```json
 {
-  "status": "ok",
+  "database": "connected",
   "message": "Hollow Wilds Backend is running",
-  "version": "1.0.0",
-  "database": "connected"
+  "status": "ok",
+  "version": "1.1.0"
 }
 ```
 
 ---
 
-## Step 5: Test Security Features
+## Step 5: Verify API Documentation
+
+Visit: `https://gamefeel-backend.fly.dev/swagger/index.html`
+
+**What to check:**
+- [ ] Page loads without errors
+- [ ] Version matches `1.1.0`
+- [ ] New endpoints (`/auth/hw/login`, `/player/save`, etc.) are listed
+
+---
+
+## Step 6: Test Security Features
 
 ### Test 1: PlayFab Token Validation (Should Fail)
 
