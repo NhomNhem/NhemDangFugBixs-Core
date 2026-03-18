@@ -470,3 +470,429 @@ func (r *postgresAdminRepository) LogAction(ctx context.Context, adminID uuid.UU
 	`, adminID, actionType, targetUserID, detailsJSON, ipAddress)
 	return err
 }
+
+func (r *postgresAdminRepository) GetAnalyticsSummary(ctx context.Context) (*models.AnalyticsSummaryResponse, error) {
+	summary := &models.AnalyticsSummaryResponse{
+		LastUpdated: time.Now(),
+		TopEvents:   []models.EventCount{},
+		DAULast7d:   []models.DAUDataPoint{},
+	}
+
+	// Total events last 24h
+	r.db.QueryRow(ctx, `
+		SELECT COUNT(*) FROM analytics_events WHERE created_at > NOW() - INTERVAL '24 hours'
+	`).Scan(&summary.TotalEventsLast24h)
+
+	// Total events last 7d
+	r.db.QueryRow(ctx, `
+		SELECT COUNT(*) FROM analytics_events WHERE created_at > NOW() - INTERVAL '7 days'
+	`).Scan(&summary.TotalEventsLast7d)
+
+	// Top 10 event types last 7d
+	rows, err := r.db.Query(ctx, `
+		SELECT event_type, COUNT(*) as cnt
+		FROM analytics_events
+		WHERE created_at > NOW() - INTERVAL '7 days'
+		GROUP BY event_type
+		ORDER BY cnt DESC
+		LIMIT 10
+	`)
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var ec models.EventCount
+			if rows.Scan(&ec.EventName, &ec.Count) == nil {
+				summary.TopEvents = append(summary.TopEvents, ec)
+			}
+		}
+	}
+
+	// DAU last 7 days
+	dauRows, err := r.db.Query(ctx, `
+		SELECT DATE(created_at) as day, COUNT(DISTINCT user_id) as dau
+		FROM analytics_events
+		WHERE created_at > NOW() - INTERVAL '7 days'
+		GROUP BY day
+		ORDER BY day ASC
+	`)
+	if err == nil {
+		defer dauRows.Close()
+		for dauRows.Next() {
+			var dp models.DAUDataPoint
+			if dauRows.Scan(&dp.Date, &dp.Count) == nil {
+				summary.DAULast7d = append(summary.DAULast7d, dp)
+			}
+		}
+	}
+
+	return summary, nil
+}
+
+func (r *postgresAdminRepository) GetActionsFiltered(ctx context.Context, page, perPage int, actionType string) (*models.AdminActionsResponse, error) {
+	offset := (page - 1) * perPage
+
+	var totalCount int
+	var countErr error
+	if actionType != "" {
+		countErr = r.db.QueryRow(ctx, "SELECT COUNT(*) FROM admin_actions WHERE action_type = $1", actionType).Scan(&totalCount)
+	} else {
+		countErr = r.db.QueryRow(ctx, "SELECT COUNT(*) FROM admin_actions").Scan(&totalCount)
+	}
+	if countErr != nil {
+		return nil, fmt.Errorf("failed to count admin actions: %w", countErr)
+	}
+
+	var actions []models.AdminAction
+	var queryErr error
+
+	if actionType != "" {
+		rows, err := r.db.Query(ctx, `
+			SELECT id, admin_id, action_type, target_user_id, details,
+			       COALESCE(ip_address, ''), created_at
+			FROM admin_actions
+			WHERE action_type = $1
+			ORDER BY created_at DESC
+			LIMIT $2 OFFSET $3
+		`, actionType, perPage, offset)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get admin actions: %w", err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var action models.AdminAction
+			var detailsJSON []byte
+			if err := rows.Scan(&action.ID, &action.AdminID, &action.ActionType, &action.TargetUserID, &detailsJSON, &action.IPAddress, &action.CreatedAt); err != nil {
+				return nil, fmt.Errorf("failed to scan admin action: %w", err)
+			}
+			if err := json.Unmarshal(detailsJSON, &action.Details); err != nil {
+				action.Details = map[string]any{}
+			}
+			actions = append(actions, action)
+		}
+		queryErr = rows.Err()
+	} else {
+		rows, err := r.db.Query(ctx, `
+			SELECT id, admin_id, action_type, target_user_id, details,
+			       COALESCE(ip_address, ''), created_at
+			FROM admin_actions
+			ORDER BY created_at DESC
+			LIMIT $1 OFFSET $2
+		`, perPage, offset)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get admin actions: %w", err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var action models.AdminAction
+			var detailsJSON []byte
+			if err := rows.Scan(&action.ID, &action.AdminID, &action.ActionType, &action.TargetUserID, &detailsJSON, &action.IPAddress, &action.CreatedAt); err != nil {
+				return nil, fmt.Errorf("failed to scan admin action: %w", err)
+			}
+			if err := json.Unmarshal(detailsJSON, &action.Details); err != nil {
+				action.Details = map[string]any{}
+			}
+			actions = append(actions, action)
+		}
+		queryErr = rows.Err()
+	}
+
+	if queryErr != nil {
+		return nil, fmt.Errorf("failed to iterate admin actions: %w", queryErr)
+	}
+
+	return &models.AdminActionsResponse{
+		Actions:    actions,
+		TotalCount: totalCount,
+		Page:       page,
+		PerPage:    perPage,
+	}, nil
+}
+
+// Level Config methods
+
+func (r *postgresAdminRepository) ListLevelConfigs(ctx context.Context, page, perPage int) (*models.LevelConfigListResponse, error) {
+	offset := (page - 1) * perPage
+
+	var totalCount int
+	if err := r.db.QueryRow(ctx, "SELECT COUNT(*) FROM level_configs").Scan(&totalCount); err != nil {
+		// Table may not exist yet — return empty list
+		return &models.LevelConfigListResponse{Levels: []models.AdminLevelConfig{}, TotalCount: 0, Page: page, PerPage: perPage}, nil
+	}
+
+	rows, err := r.db.Query(ctx, `
+		SELECT level_id, map_id, name, difficulty, min_time_seconds,
+		       base_gold, reward_stars, objectives, is_active, created_at, updated_at
+		FROM level_configs
+		ORDER BY level_id
+		LIMIT $1 OFFSET $2
+	`, perPage, offset)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list level configs: %w", err)
+	}
+	defer rows.Close()
+
+	var levels []models.AdminLevelConfig
+	for rows.Next() {
+		var lc models.AdminLevelConfig
+		var objectivesJSON []byte
+		if err := rows.Scan(
+			&lc.LevelID, &lc.MapID, &lc.Name, &lc.Difficulty, &lc.MinTimeSeconds,
+			&lc.BaseGold, &lc.RewardStars, &objectivesJSON, &lc.IsActive, &lc.CreatedAt, &lc.UpdatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("failed to scan level config: %w", err)
+		}
+		if err := json.Unmarshal(objectivesJSON, &lc.Objectives); err != nil {
+			lc.Objectives = []models.LevelObjective{}
+		}
+		levels = append(levels, lc)
+	}
+
+	return &models.LevelConfigListResponse{
+		Levels:     levels,
+		TotalCount: totalCount,
+		Page:       page,
+		PerPage:    perPage,
+	}, nil
+}
+
+func (r *postgresAdminRepository) GetLevelConfig(ctx context.Context, levelID string) (*models.AdminLevelConfig, error) {
+	var lc models.AdminLevelConfig
+	var objectivesJSON []byte
+	err := r.db.QueryRow(ctx, `
+		SELECT level_id, map_id, name, difficulty, min_time_seconds,
+		       base_gold, reward_stars, objectives, is_active, created_at, updated_at
+		FROM level_configs WHERE level_id = $1
+	`, levelID).Scan(
+		&lc.LevelID, &lc.MapID, &lc.Name, &lc.Difficulty, &lc.MinTimeSeconds,
+		&lc.BaseGold, &lc.RewardStars, &objectivesJSON, &lc.IsActive, &lc.CreatedAt, &lc.UpdatedAt,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, fmt.Errorf("level config not found: %s", levelID)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get level config: %w", err)
+	}
+	if err := json.Unmarshal(objectivesJSON, &lc.Objectives); err != nil {
+		lc.Objectives = []models.LevelObjective{}
+	}
+	return &lc, nil
+}
+
+func (r *postgresAdminRepository) CreateLevelConfig(ctx context.Context, config *models.AdminLevelConfig) error {
+	objectivesJSON, err := json.Marshal(config.Objectives)
+	if err != nil {
+		return fmt.Errorf("failed to marshal objectives: %w", err)
+	}
+	_, err = r.db.Exec(ctx, `
+		INSERT INTO level_configs (level_id, map_id, name, difficulty, min_time_seconds,
+		                           base_gold, reward_stars, objectives, is_active, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+	`, config.LevelID, config.MapID, config.Name, config.Difficulty, config.MinTimeSeconds,
+		config.BaseGold, config.RewardStars, objectivesJSON, config.IsActive)
+	if err != nil {
+		return fmt.Errorf("failed to create level config: %w", err)
+	}
+	return nil
+}
+
+func (r *postgresAdminRepository) UpdateLevelConfig(ctx context.Context, config *models.AdminLevelConfig) error {
+	objectivesJSON, err := json.Marshal(config.Objectives)
+	if err != nil {
+		return fmt.Errorf("failed to marshal objectives: %w", err)
+	}
+	result, err := r.db.Exec(ctx, `
+		UPDATE level_configs
+		SET map_id = $2, name = $3, difficulty = $4, min_time_seconds = $5,
+		    base_gold = $6, reward_stars = $7, objectives = $8, is_active = $9, updated_at = NOW()
+		WHERE level_id = $1
+	`, config.LevelID, config.MapID, config.Name, config.Difficulty, config.MinTimeSeconds,
+		config.BaseGold, config.RewardStars, objectivesJSON, config.IsActive)
+	if err != nil {
+		return fmt.Errorf("failed to update level config: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("level config not found: %s", config.LevelID)
+	}
+	return nil
+}
+
+func (r *postgresAdminRepository) DeleteLevelConfig(ctx context.Context, levelID string) error {
+	result, err := r.db.Exec(ctx, "DELETE FROM level_configs WHERE level_id = $1", levelID)
+	if err != nil {
+		return fmt.Errorf("failed to delete level config: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("level config not found: %s", levelID)
+	}
+	return nil
+}
+
+func (r *postgresAdminRepository) LevelHasLeaderboardEntries(ctx context.Context, levelID string) (int, error) {
+	var count int
+	err := r.db.QueryRow(ctx, `
+		SELECT COUNT(*) FROM leaderboard_entries WHERE level_id = $1
+	`, levelID).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count leaderboard entries: %w", err)
+	}
+	return count, nil
+}
+
+// Talent Config methods
+
+func (r *postgresAdminRepository) ListTalentConfigs(ctx context.Context, page, perPage int) (*models.TalentConfigListResponse, error) {
+	offset := (page - 1) * perPage
+
+	var totalCount int
+	if err := r.db.QueryRow(ctx, "SELECT COUNT(*) FROM talent_configs").Scan(&totalCount); err != nil {
+		// Table may not exist yet — return empty list
+		return &models.TalentConfigListResponse{Talents: []models.AdminTalentConfig{}, TotalCount: 0, Page: page, PerPage: perPage}, nil
+	}
+
+	rows, err := r.db.Query(ctx, `
+		SELECT talent_id, name, description, max_level, base_cost,
+		       cost_scaling, bonus_per_level, stat_type, unlock_map, is_active, created_at, updated_at
+		FROM talent_configs
+		ORDER BY talent_id
+		LIMIT $1 OFFSET $2
+	`, perPage, offset)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list talent configs: %w", err)
+	}
+	defer rows.Close()
+
+	var talents []models.AdminTalentConfig
+	for rows.Next() {
+		var tc models.AdminTalentConfig
+		if err := rows.Scan(
+			&tc.TalentID, &tc.Name, &tc.Description, &tc.MaxLevel, &tc.BaseCost,
+			&tc.CostScaling, &tc.BonusPerLevel, &tc.StatType, &tc.UnlockMap, &tc.IsActive, &tc.CreatedAt, &tc.UpdatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("failed to scan talent config: %w", err)
+		}
+		talents = append(talents, tc)
+	}
+
+	return &models.TalentConfigListResponse{
+		Talents:    talents,
+		TotalCount: totalCount,
+		Page:       page,
+		PerPage:    perPage,
+	}, nil
+}
+
+func (r *postgresAdminRepository) GetTalentConfig(ctx context.Context, talentID string) (*models.AdminTalentConfig, error) {
+	var tc models.AdminTalentConfig
+	err := r.db.QueryRow(ctx, `
+		SELECT talent_id, name, description, max_level, base_cost,
+		       cost_scaling, bonus_per_level, stat_type, unlock_map, is_active, created_at, updated_at
+		FROM talent_configs WHERE talent_id = $1
+	`, talentID).Scan(
+		&tc.TalentID, &tc.Name, &tc.Description, &tc.MaxLevel, &tc.BaseCost,
+		&tc.CostScaling, &tc.BonusPerLevel, &tc.StatType, &tc.UnlockMap, &tc.IsActive, &tc.CreatedAt, &tc.UpdatedAt,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, fmt.Errorf("talent config not found: %s", talentID)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get talent config: %w", err)
+	}
+	return &tc, nil
+}
+
+func (r *postgresAdminRepository) CreateTalentConfig(ctx context.Context, config *models.AdminTalentConfig) error {
+	_, err := r.db.Exec(ctx, `
+		INSERT INTO talent_configs (talent_id, name, description, max_level, base_cost,
+		                            cost_scaling, bonus_per_level, stat_type, unlock_map, is_active, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+	`, config.TalentID, config.Name, config.Description, config.MaxLevel, config.BaseCost,
+		config.CostScaling, config.BonusPerLevel, config.StatType, config.UnlockMap, config.IsActive)
+	if err != nil {
+		return fmt.Errorf("failed to create talent config: %w", err)
+	}
+	return nil
+}
+
+func (r *postgresAdminRepository) UpdateTalentConfig(ctx context.Context, config *models.AdminTalentConfig) error {
+	result, err := r.db.Exec(ctx, `
+		UPDATE talent_configs
+		SET name = $2, description = $3, max_level = $4, base_cost = $5,
+		    cost_scaling = $6, bonus_per_level = $7, stat_type = $8, unlock_map = $9,
+		    is_active = $10, updated_at = NOW()
+		WHERE talent_id = $1
+	`, config.TalentID, config.Name, config.Description, config.MaxLevel, config.BaseCost,
+		config.CostScaling, config.BonusPerLevel, config.StatType, config.UnlockMap, config.IsActive)
+	if err != nil {
+		return fmt.Errorf("failed to update talent config: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("talent config not found: %s", config.TalentID)
+	}
+	return nil
+}
+
+func (r *postgresAdminRepository) DeleteTalentConfig(ctx context.Context, talentID string) error {
+	result, err := r.db.Exec(ctx, "DELETE FROM talent_configs WHERE talent_id = $1", talentID)
+	if err != nil {
+		return fmt.Errorf("failed to delete talent config: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("talent config not found: %s", talentID)
+	}
+	return nil
+}
+
+func (r *postgresAdminRepository) TalentHasPlayers(ctx context.Context, talentID string) (int, error) {
+	var count int
+	err := r.db.QueryRow(ctx, `
+		SELECT COUNT(*) FROM user_talents WHERE talent_id = $1
+	`, talentID).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count players with talent: %w", err)
+	}
+	return count, nil
+}
+
+func (r *postgresAdminRepository) GetAdminByUsername(ctx context.Context, username string) (*models.UserProfile, string, error) {
+	var profile models.UserProfile
+	var passwordHash string
+	var lastLoginAt *time.Time
+
+	err := r.db.QueryRow(ctx, `
+		SELECT
+			u.id, u.playfab_id,
+			COALESCE(u.display_name, '') as username,
+			u.gold, u.total_stars_collected,
+			u.is_admin,
+			u.created_at, u.last_login_at,
+			COALESCE(u.password_hash, '') as password_hash,
+			EXISTS(SELECT 1 FROM user_bans WHERE user_id = u.id AND is_active = true) as is_banned
+		FROM users u
+		WHERE u.display_name = $1 AND u.is_admin = true
+		LIMIT 1
+	`, username).Scan(
+		&profile.ID, &profile.PlayFabID,
+		&profile.Username,
+		&profile.TotalGold, &profile.TotalStars,
+		&profile.IsAdmin,
+		&profile.CreatedAt, &lastLoginAt,
+		&passwordHash,
+		&profile.IsBanned,
+	)
+	if err != nil {
+		return nil, "", fmt.Errorf("admin not found: %w", err)
+	}
+	profile.LastLoginAt = lastLoginAt
+	return &profile, passwordHash, nil
+}
+
+func (r *postgresAdminRepository) SetAdminPassword(ctx context.Context, adminID uuid.UUID, passwordHash string) error {
+	_, err := r.db.Exec(ctx,
+		`UPDATE users SET password_hash = $1 WHERE id = $2 AND is_admin = true`,
+		passwordHash, adminID,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to set admin password: %w", err)
+	}
+	return nil
+}

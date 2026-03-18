@@ -153,3 +153,134 @@ type LevelStatsInfo struct {
 	AverageTime   float64 `json:"average_time"`
 	BestTime      float64 `json:"best_time"`
 }
+
+// AdminLevelConfig represents level configuration for admin management
+type AdminLevelConfig struct {
+	LevelID        string           `json:"level_id"`
+	MapID          string           `json:"map_id"`
+	Name           string           `json:"name"`
+	Difficulty     int              `json:"difficulty"`
+	MinTimeSeconds float64          `json:"min_time_seconds"`
+	BaseGold       int              `json:"base_gold"`
+	RewardStars    int              `json:"reward_stars"`
+	Objectives     []LevelObjective `json:"objectives"`
+	IsActive       bool             `json:"is_active"`
+	CreatedAt      time.Time        `json:"created_at"`
+	UpdatedAt      time.Time        `json:"updated_at"`
+}
+
+// CreateLevelConfigRequest for creating a new level config
+type CreateLevelConfigRequest struct {
+	LevelID        string           `json:"level_id" validate:"required"`
+	MapID          string           `json:"map_id" validate:"required"`
+	Name           string           `json:"name" validate:"required"`
+	Difficulty     int              `json:"difficulty" validate:"required,min=1,max=5"`
+	MinTimeSeconds float64          `json:"min_time_seconds" validate:"required,gt=0"`
+	BaseGold       int              `json:"base_gold" validate:"required,gte=0"`
+	RewardStars    int              `json:"reward_stars" validate:"required,min=1,max=3"`
+	Objectives     []LevelObjective `json:"objectives"`
+	IsActive       bool             `json:"is_active"`
+}
+
+// UpdateLevelConfigRequest for partial updates to a level config
+type UpdateLevelConfigRequest struct {
+	Name           *string          `json:"name,omitempty"`
+	Difficulty     *int             `json:"difficulty,omitempty"`
+	MinTimeSeconds *float64         `json:"min_time_seconds,omitempty"`
+	BaseGold       *int             `json:"base_gold,omitempty"`
+	RewardStars    *int             `json:"reward_stars,omitempty"`
+	Objectives     []LevelObjective `json:"objectives,omitempty"`
+	IsActive       *bool            `json:"is_active,omitempty"`
+}
+
+// LevelConfigListResponse for paginated level config list
+type LevelConfigListResponse struct {
+	Levels     []AdminLevelConfig `json:"levels"`
+	TotalCount int                `json:"total_count"`
+	Page       int                `json:"page"`
+	PerPage    int                `json:"per_page"`
+}
+
+// AdminTalentConfig represents talent configuration for admin management
+type AdminTalentConfig struct {
+	TalentID      string    `json:"talent_id"`
+	Name          string    `json:"name"`
+	Description   string    `json:"description"`
+	MaxLevel      int       `json:"max_level"`
+	BaseCost      int       `json:"base_cost"`
+	CostScaling   float64   `json:"cost_scaling"`
+	BonusPerLevel float64   `json:"bonus_per_level"`
+	StatType      string    `json:"stat_type"`
+	UnlockMap     int       `json:"unlock_map"`
+	IsActive      bool      `json:"is_active"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+}
+
+// CreateTalentConfigRequest for creating a new talent config
+type CreateTalentConfigRequest struct {
+	TalentID      string  `json:"talent_id" validate:"required"`
+	Name          string  `json:"name" validate:"required"`
+	Description   string  `json:"description" validate:"required"`
+	MaxLevel      int     `json:"max_level" validate:"required,min=1"`
+	BaseCost      int     `json:"base_cost" validate:"required,gte=0"`
+	CostScaling   float64 `json:"cost_scaling" validate:"required,gt=0"`
+	BonusPerLevel float64 `json:"bonus_per_level" validate:"required,gt=0"`
+	StatType      string  `json:"stat_type" validate:"required"`
+	UnlockMap     int     `json:"unlock_map" validate:"required,min=1"`
+	IsActive      bool    `json:"is_active"`
+}
+
+// UpdateTalentConfigRequest for partial updates to a talent config
+type UpdateTalentConfigRequest struct {
+	Name          *string  `json:"name,omitempty"`
+	Description   *string  `json:"description,omitempty"`
+	MaxLevel      *int     `json:"max_level,omitempty"`
+	BaseCost      *int     `json:"base_cost,omitempty"`
+	CostScaling   *float64 `json:"cost_scaling,omitempty"`
+	BonusPerLevel *float64 `json:"bonus_per_level,omitempty"`
+	StatType      *string  `json:"stat_type,omitempty"`
+	UnlockMap     *int     `json:"unlock_map,omitempty"`
+	IsActive      *bool    `json:"is_active,omitempty"`
+}
+
+// TalentConfigListResponse for paginated talent config list
+type TalentConfigListResponse struct {
+	Talents    []AdminTalentConfig `json:"talents"`
+	TotalCount int                 `json:"total_count"`
+	Page       int                 `json:"page"`
+	PerPage    int                 `json:"per_page"`
+}
+
+// AdminLoginRequest for admin dashboard login with username/password
+type AdminLoginRequest struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+// AdminLoginResponse for admin dashboard login response
+type AdminLoginResponse struct {
+	JWT      string      `json:"jwt"`
+	Admin    UserProfile `json:"admin"`
+}
+
+// AnalyticsSummaryResponse for analytics dashboard
+type AnalyticsSummaryResponse struct {
+	TotalEventsLast24h int64          `json:"total_events_last_24h"`
+	TotalEventsLast7d  int64          `json:"total_events_last_7d"`
+	TopEvents          []EventCount   `json:"top_events"`
+	DAULast7d          []DAUDataPoint `json:"dau_last_7d"`
+	LastUpdated        time.Time      `json:"last_updated"`
+}
+
+// EventCount represents an event name and its occurrence count
+type EventCount struct {
+	EventName string `json:"event_name"`
+	Count     int64  `json:"count"`
+}
+
+// DAUDataPoint represents daily active users for a specific date
+type DAUDataPoint struct {
+	Date  string `json:"date"`
+	Count int64  `json:"count"`
+}

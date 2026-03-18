@@ -366,6 +366,7 @@ func (r *postgresLeaderboardRepository) GetLegacyStats(ctx context.Context) (*mo
 
 	stats := &models.LeaderboardStatsResponse{
 		LastUpdated: time.Now(),
+		LevelStats:  []models.LevelStatsInfo{},
 	}
 
 	// Basic stats
@@ -378,7 +379,9 @@ func (r *postgresLeaderboardRepository) GetLegacyStats(ctx context.Context) (*mo
 		FROM level_rankings
 	`).Scan(&stats.TotalEntries, &stats.UniquePlayers, &stats.LevelsTracked, &stats.AverageTime)
 	if err != nil {
-		return nil, err
+		// Table may not exist yet — return empty stats
+		stats.LevelStats = []models.LevelStatsInfo{}
+		return stats, nil
 	}
 
 	// Per-level stats

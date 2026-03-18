@@ -302,19 +302,59 @@ func main() {
 			return c.IP()
 		},
 	}), middleware.AuthMiddleware(), hollowWildsHandler.TrackEvents)
+	// Admin CORS config — separate origin for dashboard
+	adminDashboardOrigin := getEnv("ADMIN_DASHBOARD_ORIGIN", "")
+	if adminDashboardOrigin == "" {
+		slog.Warn("ADMIN_DASHBOARD_ORIGIN is not set; admin CORS will use ALLOWED_ORIGINS fallback")
+		adminDashboardOrigin = getEnv("ALLOWED_ORIGINS", "*")
+	}
+
 	// Admin routes (require JWT + admin role)
-	admin := apiV1.Group("/admin", middleware.AuthMiddleware(), middleware.AdminMiddleware())
-	admin.Get("/users/search", adminHandler.SearchUsers)
-	admin.Get("/users/:userId/profile", adminHandler.GetUserProfile)
-	admin.Post("/users/:userId/adjust-gold", adminHandler.AdjustGold)
-	admin.Post("/users/:userId/ban", adminHandler.BanUser)
-	admin.Post("/users/:userId/unban", adminHandler.UnbanUser)
-	admin.Get("/users/:userId/ban-history", adminHandler.GetBanHistory)
-	admin.Get("/users/:userId/export-data", adminHandler.ExportUserData)
-	admin.Get("/actions", adminHandler.GetAdminActions)
-	admin.Get("/stats/overview", adminHandler.GetSystemStats)
-	admin.Delete("/leaderboards/:levelId", adminHandler.ResetLeaderboard)
-	admin.Get("/leaderboards/stats", adminHandler.GetLeaderboardStats)
+	admin := apiV1.Group("/admin",
+		cors.New(cors.Config{
+			AllowOrigins: adminDashboardOrigin,
+			AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+			AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
+		}),
+	)
+
+	// Public admin auth (no JWT required)
+	admin.Post("/auth/login", adminHandler.AdminLogin)
+
+	// Protected admin routes
+	adminProtected := admin.Group("",
+		middleware.AuthMiddleware(),
+		middleware.AdminMiddleware(),
+	)
+	adminProtected.Post("/auth/set-password", adminHandler.SetAdminPassword)
+	adminProtected.Get("/users/search", adminHandler.SearchUsers)
+	adminProtected.Get("/users/:userId/profile", adminHandler.GetUserProfile)
+	adminProtected.Post("/users/:userId/adjust-gold", adminHandler.AdjustGold)
+	adminProtected.Post("/users/:userId/ban", adminHandler.BanUser)
+	adminProtected.Post("/users/:userId/unban", adminHandler.UnbanUser)
+	adminProtected.Get("/users/:userId/ban-history", adminHandler.GetBanHistory)
+	adminProtected.Get("/users/:userId/export-data", adminHandler.ExportUserData)
+	adminProtected.Get("/actions", adminHandler.GetAdminActions)
+	adminProtected.Get("/stats/overview", adminHandler.GetSystemStats)
+	adminProtected.Delete("/leaderboards/:levelId", adminHandler.ResetLeaderboard)
+	adminProtected.Get("/leaderboards/stats", adminHandler.GetLeaderboardStats)
+
+	// Level Config routes
+	adminProtected.Get("/levels", adminHandler.ListLevels)
+	adminProtected.Post("/levels", adminHandler.CreateLevel)
+	adminProtected.Get("/levels/:levelId", adminHandler.GetLevel)
+	adminProtected.Put("/levels/:levelId", adminHandler.UpdateLevel)
+	adminProtected.Delete("/levels/:levelId", adminHandler.DeleteLevel)
+
+	// Talent Config routes
+	adminProtected.Get("/talents", adminHandler.ListTalents)
+	adminProtected.Post("/talents", adminHandler.CreateTalent)
+	adminProtected.Get("/talents/:talentId", adminHandler.GetTalent)
+	adminProtected.Put("/talents/:talentId", adminHandler.UpdateTalent)
+	adminProtected.Delete("/talents/:talentId", adminHandler.DeleteTalent)
+
+	// Analytics
+	adminProtected.Get("/analytics/summary", adminHandler.GetAnalyticsSummary)
 
 	// Get port from env or default to 8080
 	port := getEnv("PORT", "8080")

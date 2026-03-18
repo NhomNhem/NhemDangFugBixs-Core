@@ -152,6 +152,194 @@ func (_c *MockAdminRepository_BanUser_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// CreateLevelConfig provides a mock function with given fields: ctx, config
+func (_m *MockAdminRepository) CreateLevelConfig(ctx context.Context, config *models.AdminLevelConfig) error {
+	ret := _m.Called(ctx, config)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateLevelConfig")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.AdminLevelConfig) error); ok {
+		r0 = rf(ctx, config)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAdminRepository_CreateLevelConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateLevelConfig'
+type MockAdminRepository_CreateLevelConfig_Call struct {
+	*mock.Call
+}
+
+// CreateLevelConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - config *models.AdminLevelConfig
+func (_e *MockAdminRepository_Expecter) CreateLevelConfig(ctx interface{}, config interface{}) *MockAdminRepository_CreateLevelConfig_Call {
+	return &MockAdminRepository_CreateLevelConfig_Call{Call: _e.mock.On("CreateLevelConfig", ctx, config)}
+}
+
+func (_c *MockAdminRepository_CreateLevelConfig_Call) Run(run func(ctx context.Context, config *models.AdminLevelConfig)) *MockAdminRepository_CreateLevelConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*models.AdminLevelConfig))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_CreateLevelConfig_Call) Return(_a0 error) *MockAdminRepository_CreateLevelConfig_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdminRepository_CreateLevelConfig_Call) RunAndReturn(run func(context.Context, *models.AdminLevelConfig) error) *MockAdminRepository_CreateLevelConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateTalentConfig provides a mock function with given fields: ctx, config
+func (_m *MockAdminRepository) CreateTalentConfig(ctx context.Context, config *models.AdminTalentConfig) error {
+	ret := _m.Called(ctx, config)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateTalentConfig")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.AdminTalentConfig) error); ok {
+		r0 = rf(ctx, config)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAdminRepository_CreateTalentConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateTalentConfig'
+type MockAdminRepository_CreateTalentConfig_Call struct {
+	*mock.Call
+}
+
+// CreateTalentConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - config *models.AdminTalentConfig
+func (_e *MockAdminRepository_Expecter) CreateTalentConfig(ctx interface{}, config interface{}) *MockAdminRepository_CreateTalentConfig_Call {
+	return &MockAdminRepository_CreateTalentConfig_Call{Call: _e.mock.On("CreateTalentConfig", ctx, config)}
+}
+
+func (_c *MockAdminRepository_CreateTalentConfig_Call) Run(run func(ctx context.Context, config *models.AdminTalentConfig)) *MockAdminRepository_CreateTalentConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*models.AdminTalentConfig))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_CreateTalentConfig_Call) Return(_a0 error) *MockAdminRepository_CreateTalentConfig_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdminRepository_CreateTalentConfig_Call) RunAndReturn(run func(context.Context, *models.AdminTalentConfig) error) *MockAdminRepository_CreateTalentConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteLevelConfig provides a mock function with given fields: ctx, levelID
+func (_m *MockAdminRepository) DeleteLevelConfig(ctx context.Context, levelID string) error {
+	ret := _m.Called(ctx, levelID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteLevelConfig")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, levelID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAdminRepository_DeleteLevelConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteLevelConfig'
+type MockAdminRepository_DeleteLevelConfig_Call struct {
+	*mock.Call
+}
+
+// DeleteLevelConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - levelID string
+func (_e *MockAdminRepository_Expecter) DeleteLevelConfig(ctx interface{}, levelID interface{}) *MockAdminRepository_DeleteLevelConfig_Call {
+	return &MockAdminRepository_DeleteLevelConfig_Call{Call: _e.mock.On("DeleteLevelConfig", ctx, levelID)}
+}
+
+func (_c *MockAdminRepository_DeleteLevelConfig_Call) Run(run func(ctx context.Context, levelID string)) *MockAdminRepository_DeleteLevelConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_DeleteLevelConfig_Call) Return(_a0 error) *MockAdminRepository_DeleteLevelConfig_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdminRepository_DeleteLevelConfig_Call) RunAndReturn(run func(context.Context, string) error) *MockAdminRepository_DeleteLevelConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteTalentConfig provides a mock function with given fields: ctx, talentID
+func (_m *MockAdminRepository) DeleteTalentConfig(ctx context.Context, talentID string) error {
+	ret := _m.Called(ctx, talentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteTalentConfig")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, talentID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAdminRepository_DeleteTalentConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteTalentConfig'
+type MockAdminRepository_DeleteTalentConfig_Call struct {
+	*mock.Call
+}
+
+// DeleteTalentConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - talentID string
+func (_e *MockAdminRepository_Expecter) DeleteTalentConfig(ctx interface{}, talentID interface{}) *MockAdminRepository_DeleteTalentConfig_Call {
+	return &MockAdminRepository_DeleteTalentConfig_Call{Call: _e.mock.On("DeleteTalentConfig", ctx, talentID)}
+}
+
+func (_c *MockAdminRepository_DeleteTalentConfig_Call) Run(run func(ctx context.Context, talentID string)) *MockAdminRepository_DeleteTalentConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_DeleteTalentConfig_Call) Return(_a0 error) *MockAdminRepository_DeleteTalentConfig_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdminRepository_DeleteTalentConfig_Call) RunAndReturn(run func(context.Context, string) error) *MockAdminRepository_DeleteTalentConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetActions provides a mock function with given fields: ctx, page, perPage
 func (_m *MockAdminRepository) GetActions(ctx context.Context, page int, perPage int) (*models.AdminActionsResponse, error) {
 	ret := _m.Called(ctx, page, perPage)
@@ -208,6 +396,125 @@ func (_c *MockAdminRepository_GetActions_Call) Return(_a0 *models.AdminActionsRe
 }
 
 func (_c *MockAdminRepository_GetActions_Call) RunAndReturn(run func(context.Context, int, int) (*models.AdminActionsResponse, error)) *MockAdminRepository_GetActions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetActionsFiltered provides a mock function with given fields: ctx, page, perPage, actionType
+func (_m *MockAdminRepository) GetActionsFiltered(ctx context.Context, page int, perPage int, actionType string) (*models.AdminActionsResponse, error) {
+	ret := _m.Called(ctx, page, perPage, actionType)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetActionsFiltered")
+	}
+
+	var r0 *models.AdminActionsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, int, string) (*models.AdminActionsResponse, error)); ok {
+		return rf(ctx, page, perPage, actionType)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, int, string) *models.AdminActionsResponse); ok {
+		r0 = rf(ctx, page, perPage, actionType)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminActionsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, int, string) error); ok {
+		r1 = rf(ctx, page, perPage, actionType)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminRepository_GetActionsFiltered_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActionsFiltered'
+type MockAdminRepository_GetActionsFiltered_Call struct {
+	*mock.Call
+}
+
+// GetActionsFiltered is a helper method to define mock.On call
+//   - ctx context.Context
+//   - page int
+//   - perPage int
+//   - actionType string
+func (_e *MockAdminRepository_Expecter) GetActionsFiltered(ctx interface{}, page interface{}, perPage interface{}, actionType interface{}) *MockAdminRepository_GetActionsFiltered_Call {
+	return &MockAdminRepository_GetActionsFiltered_Call{Call: _e.mock.On("GetActionsFiltered", ctx, page, perPage, actionType)}
+}
+
+func (_c *MockAdminRepository_GetActionsFiltered_Call) Run(run func(ctx context.Context, page int, perPage int, actionType string)) *MockAdminRepository_GetActionsFiltered_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int), args[2].(int), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_GetActionsFiltered_Call) Return(_a0 *models.AdminActionsResponse, _a1 error) *MockAdminRepository_GetActionsFiltered_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminRepository_GetActionsFiltered_Call) RunAndReturn(run func(context.Context, int, int, string) (*models.AdminActionsResponse, error)) *MockAdminRepository_GetActionsFiltered_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAnalyticsSummary provides a mock function with given fields: ctx
+func (_m *MockAdminRepository) GetAnalyticsSummary(ctx context.Context) (*models.AnalyticsSummaryResponse, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAnalyticsSummary")
+	}
+
+	var r0 *models.AnalyticsSummaryResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*models.AnalyticsSummaryResponse, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *models.AnalyticsSummaryResponse); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AnalyticsSummaryResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminRepository_GetAnalyticsSummary_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAnalyticsSummary'
+type MockAdminRepository_GetAnalyticsSummary_Call struct {
+	*mock.Call
+}
+
+// GetAnalyticsSummary is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAdminRepository_Expecter) GetAnalyticsSummary(ctx interface{}) *MockAdminRepository_GetAnalyticsSummary_Call {
+	return &MockAdminRepository_GetAnalyticsSummary_Call{Call: _e.mock.On("GetAnalyticsSummary", ctx)}
+}
+
+func (_c *MockAdminRepository_GetAnalyticsSummary_Call) Run(run func(ctx context.Context)) *MockAdminRepository_GetAnalyticsSummary_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_GetAnalyticsSummary_Call) Return(_a0 *models.AnalyticsSummaryResponse, _a1 error) *MockAdminRepository_GetAnalyticsSummary_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminRepository_GetAnalyticsSummary_Call) RunAndReturn(run func(context.Context) (*models.AnalyticsSummaryResponse, error)) *MockAdminRepository_GetAnalyticsSummary_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -330,6 +637,65 @@ func (_c *MockAdminRepository_GetLevelCompletions_Call) RunAndReturn(run func(co
 	return _c
 }
 
+// GetLevelConfig provides a mock function with given fields: ctx, levelID
+func (_m *MockAdminRepository) GetLevelConfig(ctx context.Context, levelID string) (*models.AdminLevelConfig, error) {
+	ret := _m.Called(ctx, levelID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetLevelConfig")
+	}
+
+	var r0 *models.AdminLevelConfig
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*models.AdminLevelConfig, error)); ok {
+		return rf(ctx, levelID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.AdminLevelConfig); ok {
+		r0 = rf(ctx, levelID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminLevelConfig)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, levelID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminRepository_GetLevelConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetLevelConfig'
+type MockAdminRepository_GetLevelConfig_Call struct {
+	*mock.Call
+}
+
+// GetLevelConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - levelID string
+func (_e *MockAdminRepository_Expecter) GetLevelConfig(ctx interface{}, levelID interface{}) *MockAdminRepository_GetLevelConfig_Call {
+	return &MockAdminRepository_GetLevelConfig_Call{Call: _e.mock.On("GetLevelConfig", ctx, levelID)}
+}
+
+func (_c *MockAdminRepository_GetLevelConfig_Call) Run(run func(ctx context.Context, levelID string)) *MockAdminRepository_GetLevelConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_GetLevelConfig_Call) Return(_a0 *models.AdminLevelConfig, _a1 error) *MockAdminRepository_GetLevelConfig_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminRepository_GetLevelConfig_Call) RunAndReturn(run func(context.Context, string) (*models.AdminLevelConfig, error)) *MockAdminRepository_GetLevelConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetProfile provides a mock function with given fields: ctx, userID
 func (_m *MockAdminRepository) GetProfile(ctx context.Context, userID uuid.UUID) (*models.UserProfile, error) {
 	ret := _m.Called(ctx, userID)
@@ -447,6 +813,65 @@ func (_c *MockAdminRepository_GetSystemStats_Call) RunAndReturn(run func(context
 	return _c
 }
 
+// GetTalentConfig provides a mock function with given fields: ctx, talentID
+func (_m *MockAdminRepository) GetTalentConfig(ctx context.Context, talentID string) (*models.AdminTalentConfig, error) {
+	ret := _m.Called(ctx, talentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTalentConfig")
+	}
+
+	var r0 *models.AdminTalentConfig
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*models.AdminTalentConfig, error)); ok {
+		return rf(ctx, talentID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.AdminTalentConfig); ok {
+		r0 = rf(ctx, talentID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminTalentConfig)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, talentID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminRepository_GetTalentConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTalentConfig'
+type MockAdminRepository_GetTalentConfig_Call struct {
+	*mock.Call
+}
+
+// GetTalentConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - talentID string
+func (_e *MockAdminRepository_Expecter) GetTalentConfig(ctx interface{}, talentID interface{}) *MockAdminRepository_GetTalentConfig_Call {
+	return &MockAdminRepository_GetTalentConfig_Call{Call: _e.mock.On("GetTalentConfig", ctx, talentID)}
+}
+
+func (_c *MockAdminRepository_GetTalentConfig_Call) Run(run func(ctx context.Context, talentID string)) *MockAdminRepository_GetTalentConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_GetTalentConfig_Call) Return(_a0 *models.AdminTalentConfig, _a1 error) *MockAdminRepository_GetTalentConfig_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminRepository_GetTalentConfig_Call) RunAndReturn(run func(context.Context, string) (*models.AdminTalentConfig, error)) *MockAdminRepository_GetTalentConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserTalents provides a mock function with given fields: ctx, userID
 func (_m *MockAdminRepository) GetUserTalents(ctx context.Context, userID uuid.UUID) ([]map[string]interface{}, error) {
 	ret := _m.Called(ctx, userID)
@@ -502,6 +927,183 @@ func (_c *MockAdminRepository_GetUserTalents_Call) Return(_a0 []map[string]inter
 }
 
 func (_c *MockAdminRepository_GetUserTalents_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]map[string]interface{}, error)) *MockAdminRepository_GetUserTalents_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LevelHasLeaderboardEntries provides a mock function with given fields: ctx, levelID
+func (_m *MockAdminRepository) LevelHasLeaderboardEntries(ctx context.Context, levelID string) (int, error) {
+	ret := _m.Called(ctx, levelID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LevelHasLeaderboardEntries")
+	}
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (int, error)); ok {
+		return rf(ctx, levelID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) int); ok {
+		r0 = rf(ctx, levelID)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, levelID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminRepository_LevelHasLeaderboardEntries_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LevelHasLeaderboardEntries'
+type MockAdminRepository_LevelHasLeaderboardEntries_Call struct {
+	*mock.Call
+}
+
+// LevelHasLeaderboardEntries is a helper method to define mock.On call
+//   - ctx context.Context
+//   - levelID string
+func (_e *MockAdminRepository_Expecter) LevelHasLeaderboardEntries(ctx interface{}, levelID interface{}) *MockAdminRepository_LevelHasLeaderboardEntries_Call {
+	return &MockAdminRepository_LevelHasLeaderboardEntries_Call{Call: _e.mock.On("LevelHasLeaderboardEntries", ctx, levelID)}
+}
+
+func (_c *MockAdminRepository_LevelHasLeaderboardEntries_Call) Run(run func(ctx context.Context, levelID string)) *MockAdminRepository_LevelHasLeaderboardEntries_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_LevelHasLeaderboardEntries_Call) Return(_a0 int, _a1 error) *MockAdminRepository_LevelHasLeaderboardEntries_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminRepository_LevelHasLeaderboardEntries_Call) RunAndReturn(run func(context.Context, string) (int, error)) *MockAdminRepository_LevelHasLeaderboardEntries_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListLevelConfigs provides a mock function with given fields: ctx, page, perPage
+func (_m *MockAdminRepository) ListLevelConfigs(ctx context.Context, page int, perPage int) (*models.LevelConfigListResponse, error) {
+	ret := _m.Called(ctx, page, perPage)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListLevelConfigs")
+	}
+
+	var r0 *models.LevelConfigListResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) (*models.LevelConfigListResponse, error)); ok {
+		return rf(ctx, page, perPage)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) *models.LevelConfigListResponse); ok {
+		r0 = rf(ctx, page, perPage)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.LevelConfigListResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, int) error); ok {
+		r1 = rf(ctx, page, perPage)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminRepository_ListLevelConfigs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListLevelConfigs'
+type MockAdminRepository_ListLevelConfigs_Call struct {
+	*mock.Call
+}
+
+// ListLevelConfigs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - page int
+//   - perPage int
+func (_e *MockAdminRepository_Expecter) ListLevelConfigs(ctx interface{}, page interface{}, perPage interface{}) *MockAdminRepository_ListLevelConfigs_Call {
+	return &MockAdminRepository_ListLevelConfigs_Call{Call: _e.mock.On("ListLevelConfigs", ctx, page, perPage)}
+}
+
+func (_c *MockAdminRepository_ListLevelConfigs_Call) Run(run func(ctx context.Context, page int, perPage int)) *MockAdminRepository_ListLevelConfigs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int), args[2].(int))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_ListLevelConfigs_Call) Return(_a0 *models.LevelConfigListResponse, _a1 error) *MockAdminRepository_ListLevelConfigs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminRepository_ListLevelConfigs_Call) RunAndReturn(run func(context.Context, int, int) (*models.LevelConfigListResponse, error)) *MockAdminRepository_ListLevelConfigs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListTalentConfigs provides a mock function with given fields: ctx, page, perPage
+func (_m *MockAdminRepository) ListTalentConfigs(ctx context.Context, page int, perPage int) (*models.TalentConfigListResponse, error) {
+	ret := _m.Called(ctx, page, perPage)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListTalentConfigs")
+	}
+
+	var r0 *models.TalentConfigListResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) (*models.TalentConfigListResponse, error)); ok {
+		return rf(ctx, page, perPage)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) *models.TalentConfigListResponse); ok {
+		r0 = rf(ctx, page, perPage)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.TalentConfigListResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, int) error); ok {
+		r1 = rf(ctx, page, perPage)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminRepository_ListTalentConfigs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListTalentConfigs'
+type MockAdminRepository_ListTalentConfigs_Call struct {
+	*mock.Call
+}
+
+// ListTalentConfigs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - page int
+//   - perPage int
+func (_e *MockAdminRepository_Expecter) ListTalentConfigs(ctx interface{}, page interface{}, perPage interface{}) *MockAdminRepository_ListTalentConfigs_Call {
+	return &MockAdminRepository_ListTalentConfigs_Call{Call: _e.mock.On("ListTalentConfigs", ctx, page, perPage)}
+}
+
+func (_c *MockAdminRepository_ListTalentConfigs_Call) Run(run func(ctx context.Context, page int, perPage int)) *MockAdminRepository_ListTalentConfigs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int), args[2].(int))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_ListTalentConfigs_Call) Return(_a0 *models.TalentConfigListResponse, _a1 error) *MockAdminRepository_ListTalentConfigs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminRepository_ListTalentConfigs_Call) RunAndReturn(run func(context.Context, int, int) (*models.TalentConfigListResponse, error)) *MockAdminRepository_ListTalentConfigs_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -618,6 +1220,63 @@ func (_c *MockAdminRepository_SearchUsers_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
+// TalentHasPlayers provides a mock function with given fields: ctx, talentID
+func (_m *MockAdminRepository) TalentHasPlayers(ctx context.Context, talentID string) (int, error) {
+	ret := _m.Called(ctx, talentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TalentHasPlayers")
+	}
+
+	var r0 int
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (int, error)); ok {
+		return rf(ctx, talentID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) int); ok {
+		r0 = rf(ctx, talentID)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, talentID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminRepository_TalentHasPlayers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TalentHasPlayers'
+type MockAdminRepository_TalentHasPlayers_Call struct {
+	*mock.Call
+}
+
+// TalentHasPlayers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - talentID string
+func (_e *MockAdminRepository_Expecter) TalentHasPlayers(ctx interface{}, talentID interface{}) *MockAdminRepository_TalentHasPlayers_Call {
+	return &MockAdminRepository_TalentHasPlayers_Call{Call: _e.mock.On("TalentHasPlayers", ctx, talentID)}
+}
+
+func (_c *MockAdminRepository_TalentHasPlayers_Call) Run(run func(ctx context.Context, talentID string)) *MockAdminRepository_TalentHasPlayers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_TalentHasPlayers_Call) Return(_a0 int, _a1 error) *MockAdminRepository_TalentHasPlayers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminRepository_TalentHasPlayers_Call) RunAndReturn(run func(context.Context, string) (int, error)) *MockAdminRepository_TalentHasPlayers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UnbanUser provides a mock function with given fields: ctx, adminID, userID, reason, ipAddress
 func (_m *MockAdminRepository) UnbanUser(ctx context.Context, adminID uuid.UUID, userID uuid.UUID, reason string, ipAddress string) (*models.UnbanUserResponse, error) {
 	ret := _m.Called(ctx, adminID, userID, reason, ipAddress)
@@ -678,6 +1337,151 @@ func (_c *MockAdminRepository_UnbanUser_Call) Return(_a0 *models.UnbanUserRespon
 func (_c *MockAdminRepository_UnbanUser_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, string, string) (*models.UnbanUserResponse, error)) *MockAdminRepository_UnbanUser_Call {
 	_c.Call.Return(run)
 	return _c
+}
+
+// UpdateLevelConfig provides a mock function with given fields: ctx, config
+func (_m *MockAdminRepository) UpdateLevelConfig(ctx context.Context, config *models.AdminLevelConfig) error {
+	ret := _m.Called(ctx, config)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateLevelConfig")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.AdminLevelConfig) error); ok {
+		r0 = rf(ctx, config)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAdminRepository_UpdateLevelConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateLevelConfig'
+type MockAdminRepository_UpdateLevelConfig_Call struct {
+	*mock.Call
+}
+
+// UpdateLevelConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - config *models.AdminLevelConfig
+func (_e *MockAdminRepository_Expecter) UpdateLevelConfig(ctx interface{}, config interface{}) *MockAdminRepository_UpdateLevelConfig_Call {
+	return &MockAdminRepository_UpdateLevelConfig_Call{Call: _e.mock.On("UpdateLevelConfig", ctx, config)}
+}
+
+func (_c *MockAdminRepository_UpdateLevelConfig_Call) Run(run func(ctx context.Context, config *models.AdminLevelConfig)) *MockAdminRepository_UpdateLevelConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*models.AdminLevelConfig))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_UpdateLevelConfig_Call) Return(_a0 error) *MockAdminRepository_UpdateLevelConfig_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdminRepository_UpdateLevelConfig_Call) RunAndReturn(run func(context.Context, *models.AdminLevelConfig) error) *MockAdminRepository_UpdateLevelConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateTalentConfig provides a mock function with given fields: ctx, config
+func (_m *MockAdminRepository) UpdateTalentConfig(ctx context.Context, config *models.AdminTalentConfig) error {
+	ret := _m.Called(ctx, config)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateTalentConfig")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.AdminTalentConfig) error); ok {
+		r0 = rf(ctx, config)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAdminRepository_UpdateTalentConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateTalentConfig'
+type MockAdminRepository_UpdateTalentConfig_Call struct {
+	*mock.Call
+}
+
+// UpdateTalentConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - config *models.AdminTalentConfig
+func (_e *MockAdminRepository_Expecter) UpdateTalentConfig(ctx interface{}, config interface{}) *MockAdminRepository_UpdateTalentConfig_Call {
+	return &MockAdminRepository_UpdateTalentConfig_Call{Call: _e.mock.On("UpdateTalentConfig", ctx, config)}
+}
+
+func (_c *MockAdminRepository_UpdateTalentConfig_Call) Run(run func(ctx context.Context, config *models.AdminTalentConfig)) *MockAdminRepository_UpdateTalentConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*models.AdminTalentConfig))
+	})
+	return _c
+}
+
+func (_c *MockAdminRepository_UpdateTalentConfig_Call) Return(_a0 error) *MockAdminRepository_UpdateTalentConfig_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdminRepository_UpdateTalentConfig_Call) RunAndReturn(run func(context.Context, *models.AdminTalentConfig) error) *MockAdminRepository_UpdateTalentConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAdminByUsername provides a mock function with given fields: ctx, username
+func (_m *MockAdminRepository) GetAdminByUsername(ctx context.Context, username string) (*models.UserProfile, string, error) {
+	ret := _m.Called(ctx, username)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAdminByUsername")
+	}
+
+	var r0 *models.UserProfile
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*models.UserProfile, string, error)); ok {
+		return rf(ctx, username)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.UserProfile); ok {
+		r0 = rf(ctx, username)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.UserProfile)
+		}
+	}
+	if rf, ok := ret.Get(1).(func(context.Context, string) string); ok {
+		r1 = rf(ctx, username)
+	} else {
+		r1 = ret.Get(1).(string)
+	}
+	if rf, ok := ret.Get(2).(func(context.Context, string) error); ok {
+		r2 = rf(ctx, username)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
+}
+
+// SetAdminPassword provides a mock function with given fields: ctx, adminID, passwordHash
+func (_m *MockAdminRepository) SetAdminPassword(ctx context.Context, adminID uuid.UUID, passwordHash string) error {
+	ret := _m.Called(ctx, adminID, passwordHash)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetAdminPassword")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) error); ok {
+		r0 = rf(ctx, adminID, passwordHash)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
 }
 
 // NewMockAdminRepository creates a new instance of MockAdminRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

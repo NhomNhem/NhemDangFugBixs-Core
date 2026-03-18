@@ -152,6 +152,226 @@ func (_c *MockAdminUsecase_BanUser_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
+// CreateLevelConfig provides a mock function with given fields: ctx, adminID, req, ipAddress
+func (_m *MockAdminUsecase) CreateLevelConfig(ctx context.Context, adminID uuid.UUID, req *models.CreateLevelConfigRequest, ipAddress string) (*models.AdminLevelConfig, error) {
+	ret := _m.Called(ctx, adminID, req, ipAddress)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateLevelConfig")
+	}
+
+	var r0 *models.AdminLevelConfig
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *models.CreateLevelConfigRequest, string) (*models.AdminLevelConfig, error)); ok {
+		return rf(ctx, adminID, req, ipAddress)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *models.CreateLevelConfigRequest, string) *models.AdminLevelConfig); ok {
+		r0 = rf(ctx, adminID, req, ipAddress)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminLevelConfig)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, *models.CreateLevelConfigRequest, string) error); ok {
+		r1 = rf(ctx, adminID, req, ipAddress)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_CreateLevelConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateLevelConfig'
+type MockAdminUsecase_CreateLevelConfig_Call struct {
+	*mock.Call
+}
+
+// CreateLevelConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - adminID uuid.UUID
+//   - req *models.CreateLevelConfigRequest
+//   - ipAddress string
+func (_e *MockAdminUsecase_Expecter) CreateLevelConfig(ctx interface{}, adminID interface{}, req interface{}, ipAddress interface{}) *MockAdminUsecase_CreateLevelConfig_Call {
+	return &MockAdminUsecase_CreateLevelConfig_Call{Call: _e.mock.On("CreateLevelConfig", ctx, adminID, req, ipAddress)}
+}
+
+func (_c *MockAdminUsecase_CreateLevelConfig_Call) Run(run func(ctx context.Context, adminID uuid.UUID, req *models.CreateLevelConfigRequest, ipAddress string)) *MockAdminUsecase_CreateLevelConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*models.CreateLevelConfigRequest), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_CreateLevelConfig_Call) Return(_a0 *models.AdminLevelConfig, _a1 error) *MockAdminUsecase_CreateLevelConfig_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_CreateLevelConfig_Call) RunAndReturn(run func(context.Context, uuid.UUID, *models.CreateLevelConfigRequest, string) (*models.AdminLevelConfig, error)) *MockAdminUsecase_CreateLevelConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateTalentConfig provides a mock function with given fields: ctx, adminID, req, ipAddress
+func (_m *MockAdminUsecase) CreateTalentConfig(ctx context.Context, adminID uuid.UUID, req *models.CreateTalentConfigRequest, ipAddress string) (*models.AdminTalentConfig, error) {
+	ret := _m.Called(ctx, adminID, req, ipAddress)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateTalentConfig")
+	}
+
+	var r0 *models.AdminTalentConfig
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *models.CreateTalentConfigRequest, string) (*models.AdminTalentConfig, error)); ok {
+		return rf(ctx, adminID, req, ipAddress)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *models.CreateTalentConfigRequest, string) *models.AdminTalentConfig); ok {
+		r0 = rf(ctx, adminID, req, ipAddress)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminTalentConfig)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, *models.CreateTalentConfigRequest, string) error); ok {
+		r1 = rf(ctx, adminID, req, ipAddress)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_CreateTalentConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateTalentConfig'
+type MockAdminUsecase_CreateTalentConfig_Call struct {
+	*mock.Call
+}
+
+// CreateTalentConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - adminID uuid.UUID
+//   - req *models.CreateTalentConfigRequest
+//   - ipAddress string
+func (_e *MockAdminUsecase_Expecter) CreateTalentConfig(ctx interface{}, adminID interface{}, req interface{}, ipAddress interface{}) *MockAdminUsecase_CreateTalentConfig_Call {
+	return &MockAdminUsecase_CreateTalentConfig_Call{Call: _e.mock.On("CreateTalentConfig", ctx, adminID, req, ipAddress)}
+}
+
+func (_c *MockAdminUsecase_CreateTalentConfig_Call) Run(run func(ctx context.Context, adminID uuid.UUID, req *models.CreateTalentConfigRequest, ipAddress string)) *MockAdminUsecase_CreateTalentConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*models.CreateTalentConfigRequest), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_CreateTalentConfig_Call) Return(_a0 *models.AdminTalentConfig, _a1 error) *MockAdminUsecase_CreateTalentConfig_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_CreateTalentConfig_Call) RunAndReturn(run func(context.Context, uuid.UUID, *models.CreateTalentConfigRequest, string) (*models.AdminTalentConfig, error)) *MockAdminUsecase_CreateTalentConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteLevelConfig provides a mock function with given fields: ctx, adminID, levelID, ipAddress
+func (_m *MockAdminUsecase) DeleteLevelConfig(ctx context.Context, adminID uuid.UUID, levelID string, ipAddress string) error {
+	ret := _m.Called(ctx, adminID, levelID, ipAddress)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteLevelConfig")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string, string) error); ok {
+		r0 = rf(ctx, adminID, levelID, ipAddress)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAdminUsecase_DeleteLevelConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteLevelConfig'
+type MockAdminUsecase_DeleteLevelConfig_Call struct {
+	*mock.Call
+}
+
+// DeleteLevelConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - adminID uuid.UUID
+//   - levelID string
+//   - ipAddress string
+func (_e *MockAdminUsecase_Expecter) DeleteLevelConfig(ctx interface{}, adminID interface{}, levelID interface{}, ipAddress interface{}) *MockAdminUsecase_DeleteLevelConfig_Call {
+	return &MockAdminUsecase_DeleteLevelConfig_Call{Call: _e.mock.On("DeleteLevelConfig", ctx, adminID, levelID, ipAddress)}
+}
+
+func (_c *MockAdminUsecase_DeleteLevelConfig_Call) Run(run func(ctx context.Context, adminID uuid.UUID, levelID string, ipAddress string)) *MockAdminUsecase_DeleteLevelConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_DeleteLevelConfig_Call) Return(_a0 error) *MockAdminUsecase_DeleteLevelConfig_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdminUsecase_DeleteLevelConfig_Call) RunAndReturn(run func(context.Context, uuid.UUID, string, string) error) *MockAdminUsecase_DeleteLevelConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteTalentConfig provides a mock function with given fields: ctx, adminID, talentID, ipAddress
+func (_m *MockAdminUsecase) DeleteTalentConfig(ctx context.Context, adminID uuid.UUID, talentID string, ipAddress string) error {
+	ret := _m.Called(ctx, adminID, talentID, ipAddress)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteTalentConfig")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string, string) error); ok {
+		r0 = rf(ctx, adminID, talentID, ipAddress)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAdminUsecase_DeleteTalentConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteTalentConfig'
+type MockAdminUsecase_DeleteTalentConfig_Call struct {
+	*mock.Call
+}
+
+// DeleteTalentConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - adminID uuid.UUID
+//   - talentID string
+//   - ipAddress string
+func (_e *MockAdminUsecase_Expecter) DeleteTalentConfig(ctx interface{}, adminID interface{}, talentID interface{}, ipAddress interface{}) *MockAdminUsecase_DeleteTalentConfig_Call {
+	return &MockAdminUsecase_DeleteTalentConfig_Call{Call: _e.mock.On("DeleteTalentConfig", ctx, adminID, talentID, ipAddress)}
+}
+
+func (_c *MockAdminUsecase_DeleteTalentConfig_Call) Run(run func(ctx context.Context, adminID uuid.UUID, talentID string, ipAddress string)) *MockAdminUsecase_DeleteTalentConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_DeleteTalentConfig_Call) Return(_a0 error) *MockAdminUsecase_DeleteTalentConfig_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAdminUsecase_DeleteTalentConfig_Call) RunAndReturn(run func(context.Context, uuid.UUID, string, string) error) *MockAdminUsecase_DeleteTalentConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ExportUserData provides a mock function with given fields: ctx, userID
 func (_m *MockAdminUsecase) ExportUserData(ctx context.Context, userID uuid.UUID) (*models.ExportUserDataResponse, error) {
 	ret := _m.Called(ctx, userID)
@@ -267,6 +487,125 @@ func (_c *MockAdminUsecase_GetActions_Call) Return(_a0 *models.AdminActionsRespo
 }
 
 func (_c *MockAdminUsecase_GetActions_Call) RunAndReturn(run func(context.Context, int, int) (*models.AdminActionsResponse, error)) *MockAdminUsecase_GetActions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetActionsFiltered provides a mock function with given fields: ctx, page, perPage, actionType
+func (_m *MockAdminUsecase) GetActionsFiltered(ctx context.Context, page int, perPage int, actionType string) (*models.AdminActionsResponse, error) {
+	ret := _m.Called(ctx, page, perPage, actionType)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetActionsFiltered")
+	}
+
+	var r0 *models.AdminActionsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, int, string) (*models.AdminActionsResponse, error)); ok {
+		return rf(ctx, page, perPage, actionType)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, int, string) *models.AdminActionsResponse); ok {
+		r0 = rf(ctx, page, perPage, actionType)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminActionsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, int, string) error); ok {
+		r1 = rf(ctx, page, perPage, actionType)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_GetActionsFiltered_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActionsFiltered'
+type MockAdminUsecase_GetActionsFiltered_Call struct {
+	*mock.Call
+}
+
+// GetActionsFiltered is a helper method to define mock.On call
+//   - ctx context.Context
+//   - page int
+//   - perPage int
+//   - actionType string
+func (_e *MockAdminUsecase_Expecter) GetActionsFiltered(ctx interface{}, page interface{}, perPage interface{}, actionType interface{}) *MockAdminUsecase_GetActionsFiltered_Call {
+	return &MockAdminUsecase_GetActionsFiltered_Call{Call: _e.mock.On("GetActionsFiltered", ctx, page, perPage, actionType)}
+}
+
+func (_c *MockAdminUsecase_GetActionsFiltered_Call) Run(run func(ctx context.Context, page int, perPage int, actionType string)) *MockAdminUsecase_GetActionsFiltered_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int), args[2].(int), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_GetActionsFiltered_Call) Return(_a0 *models.AdminActionsResponse, _a1 error) *MockAdminUsecase_GetActionsFiltered_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_GetActionsFiltered_Call) RunAndReturn(run func(context.Context, int, int, string) (*models.AdminActionsResponse, error)) *MockAdminUsecase_GetActionsFiltered_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAnalyticsSummary provides a mock function with given fields: ctx
+func (_m *MockAdminUsecase) GetAnalyticsSummary(ctx context.Context) (*models.AnalyticsSummaryResponse, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAnalyticsSummary")
+	}
+
+	var r0 *models.AnalyticsSummaryResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*models.AnalyticsSummaryResponse, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *models.AnalyticsSummaryResponse); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AnalyticsSummaryResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_GetAnalyticsSummary_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAnalyticsSummary'
+type MockAdminUsecase_GetAnalyticsSummary_Call struct {
+	*mock.Call
+}
+
+// GetAnalyticsSummary is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAdminUsecase_Expecter) GetAnalyticsSummary(ctx interface{}) *MockAdminUsecase_GetAnalyticsSummary_Call {
+	return &MockAdminUsecase_GetAnalyticsSummary_Call{Call: _e.mock.On("GetAnalyticsSummary", ctx)}
+}
+
+func (_c *MockAdminUsecase_GetAnalyticsSummary_Call) Run(run func(ctx context.Context)) *MockAdminUsecase_GetAnalyticsSummary_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_GetAnalyticsSummary_Call) Return(_a0 *models.AnalyticsSummaryResponse, _a1 error) *MockAdminUsecase_GetAnalyticsSummary_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_GetAnalyticsSummary_Call) RunAndReturn(run func(context.Context) (*models.AnalyticsSummaryResponse, error)) *MockAdminUsecase_GetAnalyticsSummary_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -388,6 +727,65 @@ func (_c *MockAdminUsecase_GetLeaderboardStats_Call) RunAndReturn(run func(conte
 	return _c
 }
 
+// GetLevelConfig provides a mock function with given fields: ctx, levelID
+func (_m *MockAdminUsecase) GetLevelConfig(ctx context.Context, levelID string) (*models.AdminLevelConfig, error) {
+	ret := _m.Called(ctx, levelID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetLevelConfig")
+	}
+
+	var r0 *models.AdminLevelConfig
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*models.AdminLevelConfig, error)); ok {
+		return rf(ctx, levelID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.AdminLevelConfig); ok {
+		r0 = rf(ctx, levelID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminLevelConfig)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, levelID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_GetLevelConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetLevelConfig'
+type MockAdminUsecase_GetLevelConfig_Call struct {
+	*mock.Call
+}
+
+// GetLevelConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - levelID string
+func (_e *MockAdminUsecase_Expecter) GetLevelConfig(ctx interface{}, levelID interface{}) *MockAdminUsecase_GetLevelConfig_Call {
+	return &MockAdminUsecase_GetLevelConfig_Call{Call: _e.mock.On("GetLevelConfig", ctx, levelID)}
+}
+
+func (_c *MockAdminUsecase_GetLevelConfig_Call) Run(run func(ctx context.Context, levelID string)) *MockAdminUsecase_GetLevelConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_GetLevelConfig_Call) Return(_a0 *models.AdminLevelConfig, _a1 error) *MockAdminUsecase_GetLevelConfig_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_GetLevelConfig_Call) RunAndReturn(run func(context.Context, string) (*models.AdminLevelConfig, error)) *MockAdminUsecase_GetLevelConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetProfile provides a mock function with given fields: ctx, userID
 func (_m *MockAdminUsecase) GetProfile(ctx context.Context, userID uuid.UUID) (*models.UserProfile, error) {
 	ret := _m.Called(ctx, userID)
@@ -501,6 +899,185 @@ func (_c *MockAdminUsecase_GetSystemStats_Call) Return(_a0 *models.SystemStatsRe
 }
 
 func (_c *MockAdminUsecase_GetSystemStats_Call) RunAndReturn(run func(context.Context) (*models.SystemStatsResponse, error)) *MockAdminUsecase_GetSystemStats_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTalentConfig provides a mock function with given fields: ctx, talentID
+func (_m *MockAdminUsecase) GetTalentConfig(ctx context.Context, talentID string) (*models.AdminTalentConfig, error) {
+	ret := _m.Called(ctx, talentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTalentConfig")
+	}
+
+	var r0 *models.AdminTalentConfig
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*models.AdminTalentConfig, error)); ok {
+		return rf(ctx, talentID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.AdminTalentConfig); ok {
+		r0 = rf(ctx, talentID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminTalentConfig)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, talentID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_GetTalentConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTalentConfig'
+type MockAdminUsecase_GetTalentConfig_Call struct {
+	*mock.Call
+}
+
+// GetTalentConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - talentID string
+func (_e *MockAdminUsecase_Expecter) GetTalentConfig(ctx interface{}, talentID interface{}) *MockAdminUsecase_GetTalentConfig_Call {
+	return &MockAdminUsecase_GetTalentConfig_Call{Call: _e.mock.On("GetTalentConfig", ctx, talentID)}
+}
+
+func (_c *MockAdminUsecase_GetTalentConfig_Call) Run(run func(ctx context.Context, talentID string)) *MockAdminUsecase_GetTalentConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_GetTalentConfig_Call) Return(_a0 *models.AdminTalentConfig, _a1 error) *MockAdminUsecase_GetTalentConfig_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_GetTalentConfig_Call) RunAndReturn(run func(context.Context, string) (*models.AdminTalentConfig, error)) *MockAdminUsecase_GetTalentConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListLevels provides a mock function with given fields: ctx, page, perPage
+func (_m *MockAdminUsecase) ListLevels(ctx context.Context, page int, perPage int) (*models.LevelConfigListResponse, error) {
+	ret := _m.Called(ctx, page, perPage)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListLevels")
+	}
+
+	var r0 *models.LevelConfigListResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) (*models.LevelConfigListResponse, error)); ok {
+		return rf(ctx, page, perPage)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) *models.LevelConfigListResponse); ok {
+		r0 = rf(ctx, page, perPage)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.LevelConfigListResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, int) error); ok {
+		r1 = rf(ctx, page, perPage)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_ListLevels_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListLevels'
+type MockAdminUsecase_ListLevels_Call struct {
+	*mock.Call
+}
+
+// ListLevels is a helper method to define mock.On call
+//   - ctx context.Context
+//   - page int
+//   - perPage int
+func (_e *MockAdminUsecase_Expecter) ListLevels(ctx interface{}, page interface{}, perPage interface{}) *MockAdminUsecase_ListLevels_Call {
+	return &MockAdminUsecase_ListLevels_Call{Call: _e.mock.On("ListLevels", ctx, page, perPage)}
+}
+
+func (_c *MockAdminUsecase_ListLevels_Call) Run(run func(ctx context.Context, page int, perPage int)) *MockAdminUsecase_ListLevels_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int), args[2].(int))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_ListLevels_Call) Return(_a0 *models.LevelConfigListResponse, _a1 error) *MockAdminUsecase_ListLevels_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_ListLevels_Call) RunAndReturn(run func(context.Context, int, int) (*models.LevelConfigListResponse, error)) *MockAdminUsecase_ListLevels_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListTalents provides a mock function with given fields: ctx, page, perPage
+func (_m *MockAdminUsecase) ListTalents(ctx context.Context, page int, perPage int) (*models.TalentConfigListResponse, error) {
+	ret := _m.Called(ctx, page, perPage)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListTalents")
+	}
+
+	var r0 *models.TalentConfigListResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) (*models.TalentConfigListResponse, error)); ok {
+		return rf(ctx, page, perPage)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) *models.TalentConfigListResponse); ok {
+		r0 = rf(ctx, page, perPage)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.TalentConfigListResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, int) error); ok {
+		r1 = rf(ctx, page, perPage)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_ListTalents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListTalents'
+type MockAdminUsecase_ListTalents_Call struct {
+	*mock.Call
+}
+
+// ListTalents is a helper method to define mock.On call
+//   - ctx context.Context
+//   - page int
+//   - perPage int
+func (_e *MockAdminUsecase_Expecter) ListTalents(ctx interface{}, page interface{}, perPage interface{}) *MockAdminUsecase_ListTalents_Call {
+	return &MockAdminUsecase_ListTalents_Call{Call: _e.mock.On("ListTalents", ctx, page, perPage)}
+}
+
+func (_c *MockAdminUsecase_ListTalents_Call) Run(run func(ctx context.Context, page int, perPage int)) *MockAdminUsecase_ListTalents_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int), args[2].(int))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_ListTalents_Call) Return(_a0 *models.TalentConfigListResponse, _a1 error) *MockAdminUsecase_ListTalents_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_ListTalents_Call) RunAndReturn(run func(context.Context, int, int) (*models.TalentConfigListResponse, error)) *MockAdminUsecase_ListTalents_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -676,6 +1253,175 @@ func (_c *MockAdminUsecase_UnbanUser_Call) Return(_a0 *models.UnbanUserResponse,
 func (_c *MockAdminUsecase_UnbanUser_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, string, string) (*models.UnbanUserResponse, error)) *MockAdminUsecase_UnbanUser_Call {
 	_c.Call.Return(run)
 	return _c
+}
+
+// UpdateLevelConfig provides a mock function with given fields: ctx, adminID, levelID, req, ipAddress
+func (_m *MockAdminUsecase) UpdateLevelConfig(ctx context.Context, adminID uuid.UUID, levelID string, req *models.UpdateLevelConfigRequest, ipAddress string) (*models.AdminLevelConfig, error) {
+	ret := _m.Called(ctx, adminID, levelID, req, ipAddress)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateLevelConfig")
+	}
+
+	var r0 *models.AdminLevelConfig
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string, *models.UpdateLevelConfigRequest, string) (*models.AdminLevelConfig, error)); ok {
+		return rf(ctx, adminID, levelID, req, ipAddress)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string, *models.UpdateLevelConfigRequest, string) *models.AdminLevelConfig); ok {
+		r0 = rf(ctx, adminID, levelID, req, ipAddress)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminLevelConfig)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, string, *models.UpdateLevelConfigRequest, string) error); ok {
+		r1 = rf(ctx, adminID, levelID, req, ipAddress)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_UpdateLevelConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateLevelConfig'
+type MockAdminUsecase_UpdateLevelConfig_Call struct {
+	*mock.Call
+}
+
+// UpdateLevelConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - adminID uuid.UUID
+//   - levelID string
+//   - req *models.UpdateLevelConfigRequest
+//   - ipAddress string
+func (_e *MockAdminUsecase_Expecter) UpdateLevelConfig(ctx interface{}, adminID interface{}, levelID interface{}, req interface{}, ipAddress interface{}) *MockAdminUsecase_UpdateLevelConfig_Call {
+	return &MockAdminUsecase_UpdateLevelConfig_Call{Call: _e.mock.On("UpdateLevelConfig", ctx, adminID, levelID, req, ipAddress)}
+}
+
+func (_c *MockAdminUsecase_UpdateLevelConfig_Call) Run(run func(ctx context.Context, adminID uuid.UUID, levelID string, req *models.UpdateLevelConfigRequest, ipAddress string)) *MockAdminUsecase_UpdateLevelConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(string), args[3].(*models.UpdateLevelConfigRequest), args[4].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_UpdateLevelConfig_Call) Return(_a0 *models.AdminLevelConfig, _a1 error) *MockAdminUsecase_UpdateLevelConfig_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_UpdateLevelConfig_Call) RunAndReturn(run func(context.Context, uuid.UUID, string, *models.UpdateLevelConfigRequest, string) (*models.AdminLevelConfig, error)) *MockAdminUsecase_UpdateLevelConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateTalentConfig provides a mock function with given fields: ctx, adminID, talentID, req, ipAddress
+func (_m *MockAdminUsecase) UpdateTalentConfig(ctx context.Context, adminID uuid.UUID, talentID string, req *models.UpdateTalentConfigRequest, ipAddress string) (*models.AdminTalentConfig, error) {
+	ret := _m.Called(ctx, adminID, talentID, req, ipAddress)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateTalentConfig")
+	}
+
+	var r0 *models.AdminTalentConfig
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string, *models.UpdateTalentConfigRequest, string) (*models.AdminTalentConfig, error)); ok {
+		return rf(ctx, adminID, talentID, req, ipAddress)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string, *models.UpdateTalentConfigRequest, string) *models.AdminTalentConfig); ok {
+		r0 = rf(ctx, adminID, talentID, req, ipAddress)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminTalentConfig)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, string, *models.UpdateTalentConfigRequest, string) error); ok {
+		r1 = rf(ctx, adminID, talentID, req, ipAddress)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAdminUsecase_UpdateTalentConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateTalentConfig'
+type MockAdminUsecase_UpdateTalentConfig_Call struct {
+	*mock.Call
+}
+
+// UpdateTalentConfig is a helper method to define mock.On call
+//   - ctx context.Context
+//   - adminID uuid.UUID
+//   - talentID string
+//   - req *models.UpdateTalentConfigRequest
+//   - ipAddress string
+func (_e *MockAdminUsecase_Expecter) UpdateTalentConfig(ctx interface{}, adminID interface{}, talentID interface{}, req interface{}, ipAddress interface{}) *MockAdminUsecase_UpdateTalentConfig_Call {
+	return &MockAdminUsecase_UpdateTalentConfig_Call{Call: _e.mock.On("UpdateTalentConfig", ctx, adminID, talentID, req, ipAddress)}
+}
+
+func (_c *MockAdminUsecase_UpdateTalentConfig_Call) Run(run func(ctx context.Context, adminID uuid.UUID, talentID string, req *models.UpdateTalentConfigRequest, ipAddress string)) *MockAdminUsecase_UpdateTalentConfig_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(string), args[3].(*models.UpdateTalentConfigRequest), args[4].(string))
+	})
+	return _c
+}
+
+func (_c *MockAdminUsecase_UpdateTalentConfig_Call) Return(_a0 *models.AdminTalentConfig, _a1 error) *MockAdminUsecase_UpdateTalentConfig_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAdminUsecase_UpdateTalentConfig_Call) RunAndReturn(run func(context.Context, uuid.UUID, string, *models.UpdateTalentConfigRequest, string) (*models.AdminTalentConfig, error)) *MockAdminUsecase_UpdateTalentConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// AdminLogin provides a mock function with given fields: ctx, username, password
+func (_m *MockAdminUsecase) AdminLogin(ctx context.Context, username string, password string) (*models.AdminLoginResponse, error) {
+	ret := _m.Called(ctx, username, password)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AdminLogin")
+	}
+
+	var r0 *models.AdminLoginResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*models.AdminLoginResponse, error)); ok {
+		return rf(ctx, username, password)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *models.AdminLoginResponse); ok {
+		r0 = rf(ctx, username, password)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AdminLoginResponse)
+		}
+	}
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, username, password)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// SetAdminPassword provides a mock function with given fields: ctx, adminID, password
+func (_m *MockAdminUsecase) SetAdminPassword(ctx context.Context, adminID uuid.UUID, password string) error {
+	ret := _m.Called(ctx, adminID, password)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetAdminPassword")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) error); ok {
+		r0 = rf(ctx, adminID, password)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
 }
 
 // NewMockAdminUsecase creates a new instance of MockAdminUsecase. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
