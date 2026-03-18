@@ -40,7 +40,7 @@ temp/
 *.db
 *.sqlite
 
-# Agent folders
+# Agent / AI tool folders
 .agent/
 .amazonq/
 .augment/
@@ -67,5 +67,13 @@ temp/
 .trae/
 .vi/
 .windsurf/
-/docs/GDD/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+COPILOT.md
+
+# PowerShell scripts (may contain secrets)
 *.ps1
+
+# Docs
+/docs/GDD/
